@@ -810,6 +810,52 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                         </div>
                     </div>
                 </div>
+
+                <div class="divider"></div>
+
+                <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 12px; padding: 1.75rem; margin-top: 2rem;">
+                    <h3 style="color: #f59e0b; font-size: 1.15rem; font-weight: bold; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        ⚠️ 🔥 重要避坑指南：如何正確儲存與更新網頁應用程式 (維持相同網址)
+                    </h3>
+                    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 1.5rem;">
+                        在開發與維護 Web App 時，很多同仁最常遇到的問題是：「修改了 <code>程式碼.gs</code>，但為什麼重新整理網頁後沒看見更新？」或是「每次更新程式，網址就變了，導致外部系統或前端網頁都要重新設定網址。」
+                        <br><br>
+                        這通常是因為以下兩個關鍵動作沒有正確執行：
+                    </p>
+
+                    <h4 style="color: #ffffff; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">避坑步驟一：程式碼必須「儲存變更」</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                        在 Apps Script 中，如果程式碼檔案名稱旁邊亮起 <strong>橘色圓點</strong>，代表有修改但尚未存檔。如果此時直接去部署，運行的將會是<strong>舊版程式碼</strong>。請務必使用 <code>Ctrl + S</code> 存檔，或點選編輯器上方的「儲存」圖示，確保橘色圓點消失。
+                    </p>
+                    <div class="img-wrapper" style="max-width: 700px; margin-bottom: 2rem;">
+                        <img src="./images/gas_deploy_pitfall_save.png" alt="橘色圓點與部署選單">
+                    </div>
+
+                    <h4 style="color: #ffffff; font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem;">避坑步驟二：必須透過「管理部署」建立新版本，而非「新增部署」</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1.25rem;">
+                        當我們要更新已發布的 Web App 且<strong>維持原本的網頁 URL 網址不變</strong>時，<strong>絕對不要</strong>再次點選「新增部署作業」（這會產生一個全新 ID 的網址），而應依循以下步驟：
+                    </p>
+                    <ol style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 1.5rem; line-height: 1.5;">
+                        <li>
+                            點選右上角 <strong>「部署」</strong> &gt; <strong>「管理部署作業」</strong>。在彈出的管理視窗中，點擊右上角的 <strong>「編輯 (鉛筆圖示)」</strong>：
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0.5rem;">
+                                <img src="./images/gas_deploy_pitfall_manage.png" alt="點選編輯鉛筆圖示">
+                            </div>
+                        </li>
+                        <li>
+                            點開「版本」下拉選單，選擇 <strong>「建立新版本」</strong>：
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0.5rem;">
+                                <img src="./images/gas_deploy_pitfall_select_version.png" alt="下拉選取建立新版本">
+                            </div>
+                        </li>
+                        <li>
+                            選定後，點選右下角的 <strong>「部署」</strong> 按鈕完成更新，如此一來即可完美維持原本的 Web App 網址：
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0.5rem;">
+                                <img src="./images/gas_deploy_pitfall_new_version.png" alt="選取建立新版本後點選部署">
+                            </div>
+                        </li>
+                    </ol>
+                </div>
             </section>
 
             <!-- Section 6: V2 Login and QA Practice -->
