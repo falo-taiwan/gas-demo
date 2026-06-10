@@ -1514,6 +1514,63 @@ function getQAData() {
 &lt;/html&gt;</pre>
                 </div>
 
+                <h4 style="font-size: 1.1rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◇</span> 7.2.1 伺服器端 V3 部署與執行步驟 (圖文引導)
+                </h4>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    請依照以下步驟完成 V3 伺服器端的設定與 Web App 部署：
+                </p>
+
+                <div class="timeline">
+                    <!-- Step 1 -->
+                    <div class="timeline-step">
+                        <div class="step-num">1</div>
+                        <div class="step-title"><span>Step 01.</span> 建立並撰寫 setup.gs 程式碼</div>
+                        <div class="step-desc">
+                            在 Apps Script 專案中新增 <code>setup.gs</code> 指令碼檔案，並將上方的初始化程式碼貼入並儲存。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_setup_code.png" alt="建立 setup.gs 程式碼">
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-step">
+                        <div class="step-num">2</div>
+                        <div class="step-title"><span>Step 02.</span> 執行 setup 初始化資料庫</div>
+                        <div class="step-desc">
+                            在上方工具列選定 <code>setup</code> 函數，點擊 <strong>「執行」</strong> 按鈕。確保執行記錄成功完成，表示試算表分頁已自動建立。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_setup_run_success.png" alt="執行初始化腳本">
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-step">
+                        <div class="step-num">3</div>
+                        <div class="step-title"><span>Step 03.</span> 點選「新增部署作業」</div>
+                        <div class="step-desc">
+                            點擊右上角 <strong>「部署」</strong> 按鈕，選擇 <strong>「新增部署作業」</strong>。選取類型為「網頁應用程式」，並將存取權限設為「所有人」，隨後發布。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_deploy_click_new.png" alt="點選新增部署作業">
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-step">
+                        <div class="step-num">4</div>
+                        <div class="step-title"><span>Step 04.</span> 在外部網頁中配置 GAS_URL</div>
+                        <div class="step-desc">
+                            在本地電腦建立 <code>index.html</code> 檔案，將部署獲得的新 V3 URL 複製並替換寫入 <code>GAS_URL</code> 變數中。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_html_url_setting.png" alt="外部網頁配置 GAS_URL">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="divider"></div>
 
                 <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -1674,6 +1731,63 @@ function getQAData() {
 }</pre>
                 </div>
 
+                <h4 style="font-size: 1.1rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◇</span> 7.2.1 伺服器端 V3 部署與執行步驟 (圖文引導)
+                </h4>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    請依照以下步驟完成 V3 伺服器端的設定與 Web App 部署：
+                </p>
+
+                <div class="timeline">
+                    <!-- Step 1 -->
+                    <div class="timeline-step">
+                        <div class="step-num">1</div>
+                        <div class="step-title"><span>Step 01.</span> 建立並撰寫 setup.gs 程式碼</div>
+                        <div class="step-desc">
+                            在 Apps Script 專案中新增 <code>setup.gs</code> 指令碼檔案，並將上方的初始化程式碼貼入並儲存。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_setup_code.png" alt="建立 setup.gs 程式碼">
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-step">
+                        <div class="step-num">2</div>
+                        <div class="step-title"><span>Step 02.</span> 執行 setup 初始化資料庫</div>
+                        <div class="step-desc">
+                            在上方工具列選定 <code>setup</code> 函數，點擊 <strong>「執行」</strong> 按鈕。確保執行記錄成功完成，表示試算表分頁已自動建立。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_setup_run_success.png" alt="執行初始化腳本">
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-step">
+                        <div class="step-num">3</div>
+                        <div class="step-title"><span>Step 03.</span> 點選「新增部署作業」</div>
+                        <div class="step-desc">
+                            點擊右上角 <strong>「部署」</strong> 按鈕，選擇 <strong>「新增部署作業」</strong>。選取類型為「網頁應用程式」，並將存取權限設為「所有人」，隨後發布。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_deploy_click_new.png" alt="點選新增部署作業">
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-step">
+                        <div class="step-num">4</div>
+                        <div class="step-title"><span>Step 04.</span> 在外部網頁中配置 GAS_URL</div>
+                        <div class="step-desc">
+                            在本地電腦建立 <code>index.html</code> 檔案，將部署獲得的新 V3 URL 複製並替換寫入 <code>GAS_URL</code> 變數中。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v3_html_url_setting.png" alt="外部網頁配置 GAS_URL">
+                        </div>
+                    </div>
+                </div>
+
                 <div class="divider"></div>
 
                 <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
@@ -1803,7 +1917,7 @@ function getQAData() {
 
   &lt;script&gt;
     // 這裡替換為您 V3 部署後生成的 Web App 網址
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbziX48EPI9OcMsbtmFjeqEQGXaPkXxbchzgk5Tn3nu2l2fUvhlIPHXXKCshSR8xAi_gHA/exec";
 
     const loginPanel = document.getElementById("login-panel");
     const qaPanel = document.getElementById("qa-panel");
