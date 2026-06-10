@@ -111,6 +111,8 @@ GAS 允許我們在專案中建立 HTML 檔案來產出網頁介面，但在進�
 
 現在，我們將實作第一支最簡單的 GAS Web App，目的在於「確認部署成功」並熟悉整個部署與權限設定流程。
 
+> 🔗 **此案例線上正式 Demo 實例連結（紫色醒目框）**：[點擊前往測試](https://script.google.com/macros/s/AKfycbw9xcjQRd1qnfygic4O7fxFpk1TzjQARXBIrftl639C7PzA6n535-o6Csqc7Ji0BesZ/exec)
+
 ### 步驟 1：建立 Google 試算表
 請進入雲端硬碟的專案共用資料夾（例如：`class3 > [study-gas]`），在空白處按滑鼠右鍵（或點選左上角「新增」），選擇 **「Google 試算表」** 來建立一個新表格。
 
@@ -229,6 +231,8 @@ function doGet() {
    ![版本下拉選單選取建立新版本](./images/gas_deploy_pitfall_select_version.png)
 4. 點選右下角的 **「部署」** 按鈕完成更新：
    ![選取建立新版本後點選部署](./images/gas_deploy_pitfall_new_version.png)
+5. 成功更新後，系統會顯示「已成功更新部署作業」，此時其網網頁應用程式網址依然維持完全相同：
+   ![部署更新成功完成畫面](./images/gas_deploy_pitfall_success.png)
 
 ---
 
