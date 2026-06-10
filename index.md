@@ -315,6 +315,11 @@ function setup() {
    ![允許授權並點選繼續](./images/gas_v2_setup_auth_continue.png)
 6. 授權完畢後，編輯器下方執行記錄將顯示「V2 資料庫初始化與資料正規化設定完成！」及「執行完畢」，這代表您的 `Passwords` 與 `QA` 工作表已成功在雲端試算表中自動建立完成：
    ![執行完畢且資料庫建立成功](./images/gas_v2_setup_run_success.png)
+6. 此時點開您的 Google 試算表，您會發現新增了兩個分頁：`Passwords` 工作表（已自動寫入預設帳密與備註）與 `QA` 工作表（已寫入 5 組去識別化的銀行軟體問答）：
+   * **Passwords 表實例畫面**：
+     ![Passwords工作表](./images/gas_v2_sheet_passwords.png)
+   * **QA 表實例畫面**：
+     ![QA工作表](./images/gas_v2_sheet_qa.png)
 
 ---
 
