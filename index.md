@@ -355,7 +355,7 @@ function doGet(e) {
     '<div id="login" class="card"><h2>系統登入</h2><input type="text" id="user" placeholder="帳號"><input type="password" id="pass" placeholder="密碼"><button onclick="login()">登入</button><div id="err" class="error hidden"></div></div>' +
     '<div id="qa" class="card hidden"><h2>問答查詢系統</h2><select id="sel" onchange="showAns()"><option value="">-- 請選擇 --</option></select><div id="ans" style="margin-top:15px;padding:10px;background:#1e293b;border-left:4px solid #10b981;display:none;"></div></div>' +
     '<script>' +
-    'var webUrl = ScriptApp.getService().getUrl();' +
+    'var webUrl = "' + ScriptApp.getService().getUrl() + '";' +
     'var qaList = [];' +
     'function login() {' +
     '  var u = document.getElementById("user").value.trim();' +
