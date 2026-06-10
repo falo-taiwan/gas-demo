@@ -2255,7 +2255,7 @@ function addQAData(question, answer) {
     <script>
         function copyPrompt(btn) {
             var container = btn.closest('.prompt-box');
-            var text = container.querySelector('.prompt-text').innerText;
+            var text = container.querySelector('.prompt-text').textContent;
             // Strip displaying quotes 「 and 」
             var cleanText = text.replace(/^「/, '').replace(/」$/, '');
             
