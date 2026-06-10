@@ -991,8 +991,25 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                     <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
                         授權完成後，編輯器下方執行記錄將顯示 <code>V2 資料庫初始化與資料正規化設定完成！</code> 與 <code>執行已結束</code>，這代表您的兩張資料工作表已成功在試算表中自動建立完成：
                     </p>
-                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 1rem;">
+                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 1.5rem;">
                         <img src="./images/gas_v2_setup_run_success.png" alt="資料庫建表成功日誌記錄">
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        此時開啟您的 Google 試算表，您會看見新增了 <code>Passwords</code> 與 <code>QA</code> 兩個分頁，並已自動填入正規化的初始預設資料：
+                    </p>
+                    <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+                        <div>
+                            <div style="color: #ffffff; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.25rem;">📊 Passwords 工作表實例：</div>
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0;">
+                                <img src="./images/gas_v2_sheet_passwords.png" alt="Passwords工作表">
+                            </div>
+                        </div>
+                        <div>
+                            <div style="color: #ffffff; font-size: 0.85rem; font-weight: bold; margin-bottom: 0.25rem;">📊 QA 工作表實例：</div>
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0;">
+                                <img src="./images/gas_v2_sheet_qa.png" alt="QA工作表">
+                            </div>
+                        </div>
                     </div>
                 </div>
 
