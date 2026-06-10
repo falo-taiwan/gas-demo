@@ -623,6 +623,15 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                     現在，我們將實作第一支最簡單的 GAS Web App，目的在於<strong>「確認部署成功」</strong>並熟悉整個部署設定與 Google 的授權審核流程。
                 </p>
 
+                <!-- Prominent Purple Link Card for Case 1 Live Demo -->
+                <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 2.5rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+                    <div>
+                        <h4 style="color: #a78bfa; font-weight: bold; margin-bottom: 0.25rem; font-size: 1rem;">🔗 此案例線上正式 Demo 網址：</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">同仁可先點擊右側連結，查看本實戰演練部署完成後的實際運行效果與網頁呈現。</p>
+                    </div>
+                    <a href="https://script.google.com/macros/s/AKfycbw9xcjQRd1qnfygic4O7fxFpk1TzjQARXBIrftl639C7PzA6n535-o6Csqc7Ji0BesZ/exec" target="_blank" style="background: #8b5cf6; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); transition: all 0.2s ease; flex-shrink: 0;">前往測試網頁</a>
+                </div>
+
                 <div class="timeline">
                     <!-- Step 1 -->
                     <div class="timeline-step">
@@ -852,6 +861,12 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                             選定後，點選右下角的 <strong>「部署」</strong> 按鈕完成更新，如此一來即可完美維持原本的 Web App 網址：
                             <div class="img-wrapper" style="max-width: 600px; margin-top: 0.5rem;">
                                 <img src="./images/gas_deploy_pitfall_new_version.png" alt="選取建立新版本後點選部署">
+                            </div>
+                        </li>
+                        <li>
+                            成功更新後，系統會顯示「已成功更新部署作業」，此時其網網頁應用程式網址依然維持完全相同：
+                            <div class="img-wrapper" style="max-width: 600px; margin-top: 0.5rem;">
+                                <img src="./images/gas_deploy_pitfall_success.png" alt="部署更新成功完成畫面">
                             </div>
                         </li>
                     </ol>
