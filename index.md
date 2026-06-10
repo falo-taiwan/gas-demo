@@ -144,6 +144,10 @@ Apps Script 編輯器會開啟一個「未命名的專案」，並在左側檔�
 ![編輯器初始介面](./images/gas_step4_editor_init.png)
 
 請將 `myFunction` 替換為以下 **「極穩健觸發授權版」** 示範程式碼（可點擊網頁版一鍵複製）：
+
+<details>
+<summary>📝 doGet 程式碼</summary>
+
 ```javascript
 function doGet() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -153,6 +157,7 @@ function doGet() {
   return HtmlService.createHtmlOutput(html);
 }
 ```
+</details>
 貼上後的畫面如下，確保左側檔案名稱旁的橘色圓點亮起，表示代碼已編輯但尚未儲存，且無任何語法錯誤：
 
 ![程式碼貼上成功無語法錯誤](./images/gas_step4_editor_init_success.png)
@@ -291,6 +296,9 @@ function doGet() {
 1. 清空 `setup.gs` 中的預設代碼，將以下程式碼完整複製並貼上。
 2. 點擊編輯器上方的 **「儲存 (磁碟圖示)」** 或使用 `Ctrl + S` 進行存檔：
 
+<details>
+<summary>📝 setup.gs (資料庫初始化與正規化)</summary>
+
 ```javascript
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -323,6 +331,7 @@ function setup() {
   Logger.log("V2 資料庫初始化與資料正規化設定完成！");
 }
 ```
+</details>
 
    ![貼入程式碼並存檔](./images/gas_v2_setup_save_code.png)
 
@@ -631,36 +640,16 @@ function getQAData() {
   <!-- 2. QA 系統面板 -->
   <div id="qa-panel" class="card hidden">
     <h2>問答查詢系統</h2>
-    <div id="auth-info" style="font-size: 0.85rem; color: #06b6d4; text-align: center; margin-bottom: 15px; font-weight: bold;"></div>
-    <div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;">
-      <div style="flex-grow: 1;">
-        <label for="qa-select">請選擇問題</label>
-        <select id="qa-select">
-          <option value="">-- 請選擇 --</option>
-        </select>
-      </div>
-      <button id="refresh-btn" style="width: auto; margin-top: 0; background-color: #4b5563; padding: 10px 15px; flex-shrink: 0;">🔄 整理</button>
+    <div class="form-group">
+      <label for="qa-select">請選擇問題</label>
+      <select id="qa-select">
+        <option value="">-- 請選擇 --</option>
+      </select>
     </div>
     <div id="answer-container" class="answer-box hidden">
       <strong style="color: #10b981;">答案：</strong>
       <div id="answer-text" style="margin-top: 5px;"></div>
     </div>
-    
-    <!-- 3. 新增問答面板 (雙向寫入) -->
-    <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px;">
-      <h3 style="color: #06b6d4; font-size: 1rem; margin-top: 0; text-align: center;">新增問答資料 (雙向寫入)</h3>
-      <div class="form-group">
-        <label for="new-question">問題</label>
-        <input type="text" id="new-question" placeholder="請輸入問題內容">
-      </div>
-      <div class="form-group">
-        <label for="new-answer">答案</label>
-        <input type="text" id="new-answer" placeholder="請輸入答案內容">
-      </div>
-      <button id="upload-btn" style="background-color: #10b981;">上傳問答</button>
-      <div id="upload-message" style="margin-top: 10px; font-size: 0.85rem; text-align: center;" class="hidden"></div>
-    </div>
-
     <button id="logout-btn" style="background-color: #4b5563; margin-top: 15px;">登出</button>
   </div>
 
@@ -673,21 +662,8 @@ function getQAData() {
     const qaSelect = document.getElementById("qa-select");
     const answerContainer = document.getElementById("answer-container");
     const answerText = document.getElementById("answer-text");
-    
-    // V3 雙向回寫與 URL 控制項
-    const uploadBtn = document.getElementById("upload-btn");
-    const newQuestion = document.getElementById("new-question");
-    const newAnswer = document.getElementById("new-answer");
-    const uploadMessage = document.getElementById("upload-message");
-    const refreshBtn = document.getElementById("refresh-btn");
 
     let qaData = [];
-
-    // 獲取當前要使用的 GAS URL (選填欄位有值就用它，無則用程式碼預設)
-    function getGasUrl() {
-      const inputUrl = document.getElementById("gas-url-input").value.trim();
-      return inputUrl || GAS_URL;
-    }
 
     // 處理登入
     loginBtn.addEventListener("click", function() {
@@ -755,59 +731,6 @@ function getQAData() {
       }
     });
 
-    // 重新整理按鈕事件
-    refreshBtn.addEventListener("click", loadQA);
-
-    // 處理問答上傳 (雙向通訊回寫)
-    uploadBtn.addEventListener("click", function() {
-      const q = newQuestion.value.trim();
-      const a = newAnswer.value.trim();
-      
-      if (!q || !a) {
-        showUploadMessage("請輸入完整的問題與答案！", "#ef4444");
-        return;
-      }
-      
-      uploadBtn.disabled = true;
-      uploadBtn.innerText = "上傳中...";
-      uploadMessage.classList.add("hidden");
-      
-      fetch(getGasUrl(), {
-        method: "POST",
-        body: JSON.stringify({
-          action: "addQA",
-          question: q,
-          answer: a
-        })
-      })
-      .then(res => res.json())
-      .then(result => {
-        uploadBtn.disabled = false;
-        uploadBtn.innerText = "上傳問答";
-        
-        if (result.success) {
-          showUploadMessage("上傳成功！", "#10b981");
-          newQuestion.value = "";
-          newAnswer.value = "";
-          loadQA(); // 重新載入問題選單
-        } else {
-          showUploadMessage("上傳失敗：" + result.message, "#ef4444");
-        }
-      })
-      .catch(err => {
-        uploadBtn.disabled = false;
-        uploadBtn.innerText = "上傳問答";
-        showUploadMessage("連線錯誤：" + err.message, "#ef4444");
-        console.error(err);
-      });
-    });
-
-    function showUploadMessage(msg, color) {
-      uploadMessage.innerText = msg;
-      uploadMessage.style.color = color;
-      uploadMessage.classList.remove("hidden");
-    }
-
     // 登出
     logoutBtn.addEventListener("click", function() {
       document.getElementById("username").value = "";
@@ -815,7 +738,6 @@ function getQAData() {
       qaPanel.classList.add("hidden");
       loginPanel.classList.remove("hidden");
       answerContainer.classList.add("hidden");
-      uploadMessage.classList.add("hidden");
     });
 
     function showError(msg) {
@@ -824,8 +746,7 @@ function getQAData() {
     }
   </script>
 </body>
-</html>
-```
+</html>```
 </details>
 
 ---
