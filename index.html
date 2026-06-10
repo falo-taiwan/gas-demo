@@ -229,6 +229,29 @@
             display: block;
         }
 
+        .step-img-container {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 6px;
+            overflow: hidden;
+            margin-top: 0.75rem;
+            max-width: 650px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            transition: border-color 0.3s ease;
+        }
+
+        .step-img-container:hover {
+            border-color: rgba(6, 182, 212, 0.35);
+        }
+
+        .step-img-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            display: block;
+        }
+
         /* Timeline style for Steps */
         .timeline {
             position: relative;
@@ -1683,6 +1706,15 @@ function getQAData() {
                     <br><br>
                     此外，我們將導入 <strong>環境變數 (Script Properties)</strong> 的安全防護觀念，將敏感帳密從代碼與工作表中抽離。
                 </p>
+
+                <!-- V3 Demo Link Card -->
+                <div class="demo-card" style="display: flex; justify-content: space-between; align-items: center; background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.15); border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem;">
+                    <div>
+                        <h4 style="color: var(--cyber-cyan); font-weight: bold; margin-bottom: 0.25rem; font-size: 1rem;">🔗 此案例線上正式 Demo 前端測試網頁：</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">同仁可先點擊右側連結，在線上直接輸入您自己部署的 GAS API 進行登入與雙向寫入測試。</p>
+                    </div>
+                    <a href="./v3.html" target="_blank" style="background: var(--cyber-cyan); color: #ffffff; text-decoration: none; font-weight: bold; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 8px; box-shadow: 0 0 10px var(--cyber-cyan-glow); transition: all 0.2s ease; flex-shrink: 0;">線上測試前端</a>
+                </div>
 
                 <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
                     <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">🛡️ V3 安全防護設計：使用指令碼屬性 (Script Properties)</p>
