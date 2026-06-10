@@ -1405,11 +1405,15 @@ function getQAData() {
   &lt;!-- 2. QA 系統面板 --&gt;
   &lt;div id="qa-panel" class="card hidden"&gt;
     &lt;h2&gt;問答查詢系統&lt;/h2&gt;
-    &lt;div class="form-group"&gt;
-      &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
-      &lt;select id="qa-select"&gt;
-        &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
-      &lt;/select&gt;
+    &lt;div id="auth-info" style="font-size: 0.85rem; color: #06b6d4; text-align: center; margin-bottom: 15px; font-weight: bold;"&gt;&lt;/div&gt;
+    &lt;div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;"&gt;
+      &lt;div style="flex-grow: 1;"&gt;
+        &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
+        &lt;select id="qa-select"&gt;
+          &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;button id="refresh-btn" style="width: auto; margin-top: 0; background-color: #4b5563; padding: 10px 15px; flex-shrink: 0;"&gt;🔄 整理&lt;/button&gt;
     &lt;/div&gt;
     &lt;div id="answer-container" class="answer-box hidden"&gt;
       &lt;strong style="color: #10b981;"&gt;答案：&lt;/strong&gt;
@@ -1444,13 +1448,20 @@ function getQAData() {
     const answerContainer = document.getElementById("answer-container");
     const answerText = document.getElementById("answer-text");
     
-    // V3 雙向回寫控制項
+    // V3 雙向回寫與 URL 控制項
     const uploadBtn = document.getElementById("upload-btn");
     const newQuestion = document.getElementById("new-question");
     const newAnswer = document.getElementById("new-answer");
     const uploadMessage = document.getElementById("upload-message");
+    const refreshBtn = document.getElementById("refresh-btn");
 
     let qaData = [];
+
+    // 獲取當前要使用的 GAS URL (選填欄位有值就用它，無則用程式碼預設)
+    function getGasUrl() {
+      const inputUrl = document.getElementById("gas-url-input").value.trim();
+      return inputUrl || GAS_URL;
+    }
 
     // 處理登入
     loginBtn.addEventListener("click", function() {
@@ -1518,6 +1529,9 @@ function getQAData() {
       }
     });
 
+    // 重新整理按鈕事件
+    refreshBtn.addEventListener("click", loadQA);
+
     // 處理問答上傳 (雙向通訊回寫)
     uploadBtn.addEventListener("click", function() {
       const q = newQuestion.value.trim();
@@ -1532,7 +1546,7 @@ function getQAData() {
       uploadBtn.innerText = "上傳中...";
       uploadMessage.classList.add("hidden");
       
-      fetch(GAS_URL, {
+      fetch(getGasUrl(), {
         method: "POST",
         body: JSON.stringify({
           action: "addQA",
@@ -1692,13 +1706,16 @@ function getQAData() {
                     <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
-  // 1. 初始化 Passwords 工作表 (不再直接寫入明碼帳密，工作表僅儲存一般使用者備份)
+  // 1. 初始化 Passwords 工作表
   var passwordSheet = ss.getSheetByName("Passwords");
   if (!passwordSheet) {
     passwordSheet = ss.insertSheet("Passwords");
-    passwordSheet.appendRow(["Username", "Role", "Note"]); // 欄位中移除了 Password
-    passwordSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#cfe2f3");
-    passwordSheet.appendRow(["admin", "Admin", "Admin account set in Script Properties"]);
+    passwordSheet.appendRow(["Username", "Password", "Role", "Note"]); // 欄位包含 Password
+    passwordSheet.getRange("A1:D1").setFontWeight("bold").setBackground("#cfe2f3");
+    // 僅建立一般使用者帳密在 Sheets 中
+    passwordSheet.appendRow(["user", "user123", "User", "General User Account (Stored in Sheet)"]);
+    // 管理員只存放 Username 作為備忘，不儲存密碼於 Sheet
+    passwordSheet.appendRow(["admin", "", "Admin", "Admin password is set in Script Properties"]);
   }
   
   // 2. 初始化 QA 工作表
@@ -1769,19 +1786,39 @@ function handleLogin(username, password) {
   var sysAdminUser = scriptProperties.getProperty("ADMIN_USERNAME");
   var sysAdminPass = scriptProperties.getProperty("ADMIN_PASSWORD");
   
-  // 1. 優先比對「指令碼屬性」安全環境變數
+  // 做法 1：比對「指令碼屬性」安全環境變數 (適合 Admin 管理員)
   if (username === sysAdminUser && password === sysAdminPass) {
     return ContentService.createTextOutput(JSON.stringify({
       success: true,
       role: "Admin",
-      message: "Login successful (Admin)"
+      authType: "ScriptProperties",
+      message: "登入成功 (安全環境變數模式 - 管理員)"
     })).setMimeType(ContentService.MimeType.JSON);
   }
   
-  // 2. 一般使用者驗證（亦可在此串接其他加密機制）
+  // 做法 2：比對「工作表」明碼資料表 (適合一般 User 查詢權限)
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Passwords");
+  if (sheet) {
+    var data = sheet.getDataRange().getValues();
+    for (var i = 1; i < data.length; i++) {
+      var sheetUser = data[i][0];
+      var sheetPass = String(data[i][1]);
+      var sheetRole = data[i][2];
+      if (username === sheetUser && password === sheetPass) {
+        return ContentService.createTextOutput(JSON.stringify({
+          success: true,
+          role: sheetRole,
+          authType: "GoogleSheet",
+          message: "登入成功 (工作表儲存格比對模式 - 一般用戶)"
+        })).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+  }
+  
   return ContentService.createTextOutput(JSON.stringify({
     success: false,
-    message: "Invalid username or password"
+    message: "帳號或密碼錯誤！"
   })).setMimeType(ContentService.MimeType.JSON);
 }
 
@@ -1988,6 +2025,14 @@ function addQAData(question, answer) {
   &lt;!-- 1. 登入面板 --&gt;
   &lt;div id="login-panel" class="card"&gt;
     &lt;h2&gt;V3 系統登入&lt;/h2&gt;
+    
+    &lt;!-- API 連線網址 (選填) --&gt;
+    &lt;div class="form-group" style="margin-bottom: 20px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 15px;"&gt;
+      &lt;label for="gas-url-input"&gt;API 連線網址 (選填)&lt;/label&gt;
+      &lt;input type="text" id="gas-url-input" placeholder="可輸入自訂的 GAS Web App 網址"&gt;
+      &lt;small style="color: #94a3b8; font-size: 0.75rem; margin-top: 5px; display: block;"&gt;若留空，將使用手冊內置的 V3 預設 Demo 網址。&lt;/small&gt;
+    &lt;/div&gt;
+
     &lt;div class="form-group"&gt;
       &lt;label for="username"&gt;帳號&lt;/label&gt;
       &lt;input type="text" id="username" placeholder="請輸入帳號"&gt;
@@ -2003,11 +2048,15 @@ function addQAData(question, answer) {
   &lt;!-- 2. QA 系統面板 --&gt;
   &lt;div id="qa-panel" class="card hidden"&gt;
     &lt;h2&gt;問答查詢系統&lt;/h2&gt;
-    &lt;div class="form-group"&gt;
-      &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
-      &lt;select id="qa-select"&gt;
-        &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
-      &lt;/select&gt;
+    &lt;div id="auth-info" style="font-size: 0.85rem; color: #06b6d4; text-align: center; margin-bottom: 15px; font-weight: bold;"&gt;&lt;/div&gt;
+    &lt;div class="form-group" style="display: flex; gap: 10px; align-items: flex-end;"&gt;
+      &lt;div style="flex-grow: 1;"&gt;
+        &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
+        &lt;select id="qa-select"&gt;
+          &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
+        &lt;/select&gt;
+      &lt;/div&gt;
+      &lt;button id="refresh-btn" style="width: auto; margin-top: 0; background-color: #4b5563; padding: 10px 15px; flex-shrink: 0;"&gt;🔄 整理&lt;/button&gt;
     &lt;/div&gt;
     &lt;div id="answer-container" class="answer-box hidden"&gt;
       &lt;strong style="color: #10b981;"&gt;答案：&lt;/strong&gt;
@@ -2045,13 +2094,20 @@ function addQAData(question, answer) {
     const answerContainer = document.getElementById("answer-container");
     const answerText = document.getElementById("answer-text");
     
-    // V3 雙向回寫控制項
+    // V3 雙向回寫與 URL 控制項
     const uploadBtn = document.getElementById("upload-btn");
     const newQuestion = document.getElementById("new-question");
     const newAnswer = document.getElementById("new-answer");
     const uploadMessage = document.getElementById("upload-message");
+    const refreshBtn = document.getElementById("refresh-btn");
 
     let qaData = [];
+
+    // 獲取當前要使用的 GAS URL (選填欄位有值就用它，無則用程式碼預設)
+    function getGasUrl() {
+      const inputUrl = document.getElementById("gas-url-input").value.trim();
+      return inputUrl || GAS_URL;
+    }
 
     // 處理登入
     loginBtn.addEventListener("click", function() {
@@ -2068,7 +2124,7 @@ function addQAData(question, answer) {
       loginBtn.innerText = "驗證中...";
 
       // 使用簡單 POST 請求，避開 Preflight 限制
-      fetch(GAS_URL, {
+      fetch(getGasUrl(), {
         method: "POST",
         body: JSON.stringify({
           action: "login",
@@ -2084,6 +2140,11 @@ function addQAData(question, answer) {
         if (result.success) {
           loginPanel.classList.add("hidden");
           qaPanel.classList.remove("hidden");
+          
+          // 顯示目前所使用的登入方式與驗證源 (明確呈現)
+          const authModeText = result.authType === "ScriptProperties" ? "指令碼屬性驗證 (安全環境變數)" : "工作表格儲存格驗證";
+          document.getElementById("auth-info").innerText = `登入角色：${result.role} (${authModeText})`;
+          
           loadQA();
         } else {
           showError(result.message || "登入失敗！");
@@ -2099,7 +2160,7 @@ function addQAData(question, answer) {
 
     // 撈取 QA 資料
     function loadQA() {
-      fetch(GAS_URL + "?action=getQA")
+      fetch(getGasUrl() + "?action=getQA")
         .then(res =&gt; res.json())
         .then(result =&gt; {
           if (result.success) {
@@ -2136,6 +2197,9 @@ function addQAData(question, answer) {
       }
     });
 
+    // 重新整理按鈕事件
+    refreshBtn.addEventListener("click", loadQA);
+
     // 處理問答上傳 (雙向通訊回寫)
     uploadBtn.addEventListener("click", function() {
       const q = newQuestion.value.trim();
@@ -2150,7 +2214,7 @@ function addQAData(question, answer) {
       uploadBtn.innerText = "上傳中...";
       uploadMessage.classList.add("hidden");
       
-      fetch(GAS_URL, {
+      fetch(getGasUrl(), {
         method: "POST",
         body: JSON.stringify({
           action: "addQA",
