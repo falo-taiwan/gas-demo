@@ -622,7 +622,23 @@ function getQAData() {
       <strong style="color: #10b981;">答案：</strong>
       <div id="answer-text" style="margin-top: 5px;"></div>
     </div>
-    <button id="logout-btn" style="background-color: #4b5563;">登出</button>
+    
+    <!-- 3. 新增問答面板 (雙向寫入) -->
+    <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px;">
+      <h3 style="color: #06b6d4; font-size: 1rem; margin-top: 0; text-align: center;">新增問答資料 (雙向寫入)</h3>
+      <div class="form-group">
+        <label for="new-question">問題</label>
+        <input type="text" id="new-question" placeholder="請輸入問題內容">
+      </div>
+      <div class="form-group">
+        <label for="new-answer">答案</label>
+        <input type="text" id="new-answer" placeholder="請輸入答案內容">
+      </div>
+      <button id="upload-btn" style="background-color: #10b981;">上傳問答</button>
+      <div id="upload-message" style="margin-top: 10px; font-size: 0.85rem; text-align: center;" class="hidden"></div>
+    </div>
+
+    <button id="logout-btn" style="background-color: #4b5563; margin-top: 15px;">登出</button>
   </div>
 
   <script>
@@ -634,6 +650,12 @@ function getQAData() {
     const qaSelect = document.getElementById("qa-select");
     const answerContainer = document.getElementById("answer-container");
     const answerText = document.getElementById("answer-text");
+    
+    // V3 雙向回寫控制項
+    const uploadBtn = document.getElementById("upload-btn");
+    const newQuestion = document.getElementById("new-question");
+    const newAnswer = document.getElementById("new-answer");
+    const uploadMessage = document.getElementById("upload-message");
 
     let qaData = [];
 
@@ -703,6 +725,56 @@ function getQAData() {
       }
     });
 
+    // 處理問答上傳 (雙向通訊回寫)
+    uploadBtn.addEventListener("click", function() {
+      const q = newQuestion.value.trim();
+      const a = newAnswer.value.trim();
+      
+      if (!q || !a) {
+        showUploadMessage("請輸入完整的問題與答案！", "#ef4444");
+        return;
+      }
+      
+      uploadBtn.disabled = true;
+      uploadBtn.innerText = "上傳中...";
+      uploadMessage.classList.add("hidden");
+      
+      fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addQA",
+          question: q,
+          answer: a
+        })
+      })
+      .then(res => res.json())
+      .then(result => {
+        uploadBtn.disabled = false;
+        uploadBtn.innerText = "上傳問答";
+        
+        if (result.success) {
+          showUploadMessage("上傳成功！", "#10b981");
+          newQuestion.value = "";
+          newAnswer.value = "";
+          loadQA(); // 重新載入問題選單
+        } else {
+          showUploadMessage("上傳失敗：" + result.message, "#ef4444");
+        }
+      })
+      .catch(err => {
+        uploadBtn.disabled = false;
+        uploadBtn.innerText = "上傳問答";
+        showUploadMessage("連線錯誤：" + err.message, "#ef4444");
+        console.error(err);
+      });
+    });
+
+    function showUploadMessage(msg, color) {
+      uploadMessage.innerText = msg;
+      uploadMessage.style.color = color;
+      uploadMessage.classList.remove("hidden");
+    }
+
     // 登出
     logoutBtn.addEventListener("click", function() {
       document.getElementById("username").value = "";
@@ -710,6 +782,7 @@ function getQAData() {
       qaPanel.classList.add("hidden");
       loginPanel.classList.remove("hidden");
       answerContainer.classList.add("hidden");
+      uploadMessage.classList.add("hidden");
     });
 
     function showError(msg) {
@@ -809,6 +882,10 @@ function doPost(e) {
     return handleLogin(postData.username, postData.password);
   }
   
+  if (action === "addQA") {
+    return addQAData(postData.question, postData.answer);
+  }
+  
   return ContentService.createTextOutput(JSON.stringify({
     success: false,
     message: "Unknown action"
@@ -855,6 +932,30 @@ function getQAData() {
   return ContentService.createTextOutput(JSON.stringify({
     success: true,
     data: qaList
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function addQAData(question, answer) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("QA");
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: "Database error: QA sheet not found"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var lastRow = sheet.getLastRow();
+  var nextId = 1;
+  if (lastRow > 1) {
+    nextId = Number(sheet.getRange(lastRow, 1).getValue()) + 1;
+  }
+  
+  sheet.appendRow([nextId, question, answer]);
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    success: true,
+    message: "QA 新增成功！"
   })).setMimeType(ContentService.MimeType.JSON);
 }
 ```
@@ -998,7 +1099,23 @@ function getQAData() {
       <strong style="color: #10b981;">答案：</strong>
       <div id="answer-text" style="margin-top: 5px;"></div>
     </div>
-    <button id="logout-btn" style="background-color: #4b5563;">登出</button>
+    
+    <!-- 3. 新增問答面板 (雙向寫入) -->
+    <div style="border-top: 1px solid rgba(255, 255, 255, 0.1); margin-top: 20px; padding-top: 15px;">
+      <h3 style="color: #06b6d4; font-size: 1rem; margin-top: 0; text-align: center;">新增問答資料 (雙向寫入)</h3>
+      <div class="form-group">
+        <label for="new-question">問題</label>
+        <input type="text" id="new-question" placeholder="請輸入問題內容">
+      </div>
+      <div class="form-group">
+        <label for="new-answer">答案</label>
+        <input type="text" id="new-answer" placeholder="請輸入答案內容">
+      </div>
+      <button id="upload-btn" style="background-color: #10b981;">上傳問答</button>
+      <div id="upload-message" style="margin-top: 10px; font-size: 0.85rem; text-align: center;" class="hidden"></div>
+    </div>
+
+    <button id="logout-btn" style="background-color: #4b5563; margin-top: 15px;">登出</button>
   </div>
 
   <script>
@@ -1013,6 +1130,12 @@ function getQAData() {
     const qaSelect = document.getElementById("qa-select");
     const answerContainer = document.getElementById("answer-container");
     const answerText = document.getElementById("answer-text");
+    
+    // V3 雙向回寫控制項
+    const uploadBtn = document.getElementById("upload-btn");
+    const newQuestion = document.getElementById("new-question");
+    const newAnswer = document.getElementById("new-answer");
+    const uploadMessage = document.getElementById("upload-message");
 
     let qaData = [];
 
@@ -1099,6 +1222,56 @@ function getQAData() {
       }
     });
 
+    // 處理問答上傳 (雙向通訊回寫)
+    uploadBtn.addEventListener("click", function() {
+      const q = newQuestion.value.trim();
+      const a = newAnswer.value.trim();
+      
+      if (!q || !a) {
+        showUploadMessage("請輸入完整的問題與答案！", "#ef4444");
+        return;
+      }
+      
+      uploadBtn.disabled = true;
+      uploadBtn.innerText = "上傳中...";
+      uploadMessage.classList.add("hidden");
+      
+      fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "addQA",
+          question: q,
+          answer: a
+        })
+      })
+      .then(res => res.json())
+      .then(result => {
+        uploadBtn.disabled = false;
+        uploadBtn.innerText = "上傳問答";
+        
+        if (result.success) {
+          showUploadMessage("上傳成功！", "#10b981");
+          newQuestion.value = "";
+          newAnswer.value = "";
+          loadQA(); // 重新載入問題選單
+        } else {
+          showUploadMessage("上傳失敗：" + result.message, "#ef4444");
+        }
+      })
+      .catch(err => {
+        uploadBtn.disabled = false;
+        uploadBtn.innerText = "上傳問答";
+        showUploadMessage("連線錯誤：" + err.message, "#ef4444");
+        console.error(err);
+      });
+    });
+
+    function showUploadMessage(msg, color) {
+      uploadMessage.innerText = msg;
+      uploadMessage.style.color = color;
+      uploadMessage.classList.remove("hidden");
+    }
+
     // 登出
     logoutBtn.addEventListener("click", function() {
       document.getElementById("username").value = "";
@@ -1106,6 +1279,7 @@ function getQAData() {
       qaPanel.classList.add("hidden");
       loginPanel.classList.remove("hidden");
       answerContainer.classList.add("hidden");
+      uploadMessage.classList.add("hidden");
     });
 
     function showError(msg) {
