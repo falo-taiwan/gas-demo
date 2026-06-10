@@ -879,6 +879,14 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                 <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
                     在第一個實戰確認部署成功後，我們將進一步模擬真實的 ERP 前後端對接架構：建立一個具有<strong>帳密登入控制</strong>與<strong>下拉選單問答撈取</strong>的實用 Web App。
                 </p>
+                <!-- Prominent Purple Link Card for V2 Live Demo -->
+                <div style="background: rgba(139, 92, 246, 0.08); border: 1px solid rgba(139, 92, 246, 0.3); border-radius: 12px; padding: 1.25rem; margin-bottom: 2rem; display: flex; align-items: center; justify-content: space-between; gap: 1.5rem;">
+                    <div>
+                        <h4 style="color: #a78bfa; font-weight: bold; margin-bottom: 0.25rem; font-size: 1rem;">🔗 此案例線上正式 Demo 網址：</h4>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin: 0;">同仁可先點擊右側連結，查看此帳密登入與 QA 系統部署完成後的實際運行效果與網頁呈現（內建網頁版）。</p>
+                    </div>
+                    <a href="https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec" target="_blank" style="background: #8b5cf6; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); transition: all 0.2s ease; flex-shrink: 0;">前往測試網頁</a>
+                </div>
 
                 <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
                     <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">⚙️ 雙表系統架構設計：</p>
@@ -1121,6 +1129,74 @@ function getQAData() {
 function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }</pre>
+                </div>
+                <h4 style="font-size: 1.1rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◇</span> 6.3.1 做法 A 網頁應用程式部署步驟 (圖文引導)
+                </h4>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    貼上做法 A 的程式碼後，請依照以下步驟將其發布為網頁應用程式：
+                </p>
+
+                <div class="timeline">
+                    <!-- Step 1 -->
+                    <div class="timeline-step">
+                        <div class="step-num">1</div>
+                        <div class="step-title"><span>Step 01.</span> 貼入程式碼並確實儲存</div>
+                        <div class="step-desc">
+                            將 <code>程式碼.gs</code> 原本的代碼清空，貼上做法 A 的完整程式碼，並按下 <code>Ctrl + S</code> 儲存。確保左側檔案名稱旁的橘色圓點消失。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v2_deploy_save_code.png" alt="貼入程式碼並存檔">
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-step">
+                        <div class="step-num">2</div>
+                        <div class="step-title"><span>Step 02.</span> 點選「新增部署作業」</div>
+                        <div class="step-desc">
+                            在右上角點擊 <strong>「部署」</strong> 按鈕，並在下拉選單中選擇 <strong>「新增部署作業」</strong>。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v2_deploy_click_new.png" alt="點選新增部署作業">
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-step">
+                        <div class="step-num">3</div>
+                        <div class="step-title"><span>Step 03.</span> 設定部署類型為「網頁應用程式」</div>
+                        <div class="step-desc">
+                            點選左上角「選取類型」旁的齒輪圖示，在選單中選取 <strong>「網頁應用程式」</strong>。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v2_deploy_select_type.png" alt="選取類型為網頁應用程式">
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-step">
+                        <div class="step-num">4</div>
+                        <div class="step-title"><span>Step 04.</span> 將存取權限設定為「所有人」</div>
+                        <div class="step-desc">
+                            將「誰可以存取」修改為 <strong>「所有人」</strong>，以便外部帳戶與 API 請求能順利存取此應用程式，隨後點選下方的 <strong>「部署」</strong> 按鈕。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v2_deploy_set_permission.png" alt="設定存取權限為所有人">
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="timeline-step">
+                        <div class="step-num">5</div>
+                        <div class="step-title"><span>Step 05.</span> 部署成功並取得網址</div>
+                        <div class="step-desc">
+                            系統完成部署後，會顯示「已成功更新部署作業」。請點選網址下方的 <strong>「複製」</strong> 按鈕取得網頁應用程式 URL。
+                        </div>
+                        <div class="step-img-container">
+                            <img src="./images/gas_v2_deploy_success.png" alt="取得網頁應用程式網址">
+                        </div>
+                    </div>
                 </div>
 
                 <div class="divider"></div>
