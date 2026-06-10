@@ -1059,7 +1059,7 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
     '&lt;div id="login" class="card"&gt;&lt;h2&gt;系統登入&lt;/h2&gt;&lt;input type="text" id="user" placeholder="帳號"&gt;&lt;input type="password" id="pass" placeholder="密碼"&gt;&lt;button onclick="login()"&gt;登入&lt;/button&gt;&lt;div id="err" class="error hidden"&gt;&lt;/div&gt;&lt;/div&gt;' +
     '&lt;div id="qa" class="card hidden"&gt;&lt;h2&gt;問答查詢系統&lt;/h2&gt;&lt;select id="sel" onchange="showAns()"&gt;&lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;&lt;/select&gt;&lt;div id="ans" style="margin-top:15px;padding:10px;background:#1e293b;border-left:4px solid #10b981;display:none;"&gt;&lt;/div&gt;&lt;/div&gt;' +
     '&lt;script&gt;' +
-    'var webUrl = ScriptApp.getService().getUrl();' +
+    'var webUrl = "' + ScriptApp.getService().getUrl() + '";' +
     'var qaList = [];' +
     'function login() {' +
     '  var u = document.getElementById("user").value.trim();' +
