@@ -897,15 +897,40 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                 <div class="divider"></div>
 
                 <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
-                    <span style="color: var(--cyber-cyan);">◆</span> 6.2 雙表資料初始化腳本 (setup.gs)
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.2 雙表資料初始化腳本 (setup.gs) 的建立與執行步驟
                 </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    不論採用做法 A 還是做法 B，我們都需要先建立並初始化 <code>Passwords</code> 與 <code>QA</code> 資料表。請遵循以下步驟操作：
+                </p>
 
-                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
-                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
-                        <span>📝 setup.gs (資料庫初始化與正規化)</span>
-                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                <!-- Step-by-Step for setup.gs -->
+                <div style="background: rgba(255, 255, 255, 0.015); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <h4 style="color: #ffffff; font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem;">步驟 1：建立 setup.gs 檔案</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        在 Apps Script 編輯器左側的「檔案」旁，點選 <strong>「+」</strong> 按鈕，並在下拉選單中選擇 <strong>「指令碼」</strong>：
                     </p>
-                    <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
+                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 1.5rem;">
+                        <img src="./images/gas_v2_setup_add_file.png" alt="新增指令碼檔案">
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        將新建的檔案命名為 <strong><code>setup</code></strong> (系統會自動生成 <code>setup.gs</code>)：
+                    </p>
+                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 2rem;">
+                        <img src="./images/gas_v2_setup_name_file.png" alt="命名為setup">
+                    </div>
+
+                    <h4 style="color: #ffffff; font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem;">步驟 2：貼入初始化程式碼並儲存</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 1rem;">
+                        清空新建檔案中的所有預設程式碼，複製並貼上下方的資料庫初始化程式碼。接著，點擊編輯器上方的 <strong>「儲存」</strong> 圖標或按 <code>Ctrl + S</code>：
+                    </p>
+
+                    <!-- setup.gs Code Box -->
+                    <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.25rem;">
+                        <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                            <span>📝 setup.gs (資料庫初始化與正規化)</span>
+                            <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                        </p>
+                        <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   
   // 1. 初始化 Passwords 工作表
@@ -935,6 +960,40 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
   
   Logger.log("V2 資料庫初始化與資料正規化設定完成！");
 }</pre>
+                    </div>
+
+                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 2rem;">
+                        <img src="./images/gas_v2_setup_save_code.png" alt="貼入程式碼並點選儲存">
+                    </div>
+
+                    <h4 style="color: #ffffff; font-size: 1.05rem; font-weight: 600; margin-bottom: 1rem;">步驟 3：執行 setup 函數進行授權與建表</h4>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        在編輯器頂端工具列中，確認選擇的執行函數為 <strong><code>setup</code></strong>，接著點選左側的 <strong>「執行」</strong>：
+                    </p>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        系統會偵測到對試算表的寫入要求，並彈出「需要授權」提示。請點擊 <strong>「審查權限」</strong>：
+                    </p>
+                    <div class="img-wrapper" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <img src="./images/gas_v2_setup_auth_required.png" alt="點選審查權限提示">
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        在彈出的帳號驗證及安全警告中，點選「進階」並按下 <strong>「前往『gas-study-v2』(不安全)」</strong>：
+                    </p>
+                    <div class="img-wrapper" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <img src="./images/gas_v2_setup_auth_unsafe.png" alt="授權放行不安全網址">
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        在最後的「確認您信任的應用程式」畫面中，確認權限範圍並點擊右下角的 <strong>「繼續 (Continue)」</strong> 完成授權放行：
+                    </p>
+                    <div class="img-wrapper" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <img src="./images/gas_v2_setup_auth_continue.png" alt="點選繼續以允許權限要求">
+                    </div>
+                    <p style="color: var(--text-muted); font-size: 0.9rem; line-height: 1.5; margin-bottom: 0.75rem;">
+                        授權完成後，編輯器下方執行記錄將顯示 <code>V2 資料庫初始化與資料正規化設定完成！</code> 與 <code>執行已結束</code>，這代表您的兩張資料工作表已成功在試算表中自動建立完成：
+                    </p>
+                    <div class="img-wrapper" style="max-width: 600px; margin-bottom: 1rem;">
+                        <img src="./images/gas_v2_setup_run_success.png" alt="資料庫建表成功日誌記錄">
+                    </div>
                 </div>
 
                 <div class="divider"></div>
