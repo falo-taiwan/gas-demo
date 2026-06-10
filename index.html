@@ -888,8 +888,60 @@ var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");
                     <a href="https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec" target="_blank" style="background: #8b5cf6; color: #ffffff; text-decoration: none; font-weight: bold; font-size: 0.9rem; padding: 0.6rem 1.2rem; border-radius: 8px; box-shadow: 0 0 10px rgba(139, 92, 246, 0.3); transition: all 0.2s ease; flex-shrink: 0;">前往測試網頁</a>
                 </div>
 
+                <!-- 6.1 三種開發做法對比 -->
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.1 系統開發三種做法優劣對比
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    同仁在實作 GAS 網頁應用時，通常會有以下三種主流開發架構。在開始動手前，我們可以先評估各做法的優缺點與適用情境：
+                </p>
+                <div style="overflow-x: auto; margin-bottom: 2rem;">
+                    <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; color: var(--text-muted); min-width: 800px;">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1); text-align: left; color: #ffffff;">
+                                <th style="padding: 0.75rem 0.5rem; width: 12%; text-align: left;">架構做法</th>
+                                <th style="padding: 0.75rem 0.5rem; width: 15%; text-align: left;">網頁託管位置</th>
+                                <th style="padding: 0.75rem 0.5rem; width: 15%; text-align: left;">通訊通訊方式</th>
+                                <th style="padding: 0.75rem 0.5rem; width: 23%; text-align: left;">優點</th>
+                                <th style="padding: 0.75rem 0.5rem; width: 23%; text-align: left;">缺點</th>
+                                <th style="padding: 0.75rem 0.5rem; width: 12%; text-align: left;">適用場景</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 0.5rem; font-weight: bold; color: #ffffff; vertical-align: top;">做法 A：行內字串版 (V2)</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">Google Apps Script 內部</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;"><code>fetch</code><br>(對自身 Web App 請求)</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #34d399; vertical-align: top;">1. 只有一個 <code>.gs</code> 檔案，部署極快。<br>2. 適合搭配 AI 一鍵生成一頁式網頁。</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #f87171; vertical-align: top;">1. HTML 字串在代碼內極難排版與除錯。<br>2. 程式碼過長時易因複製折行出錯。</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">快速概念驗證 (PoC)、極簡易單頁小工具。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 0.5rem; font-weight: bold; color: #ffffff; vertical-align: top;">做法 B：獨立檔案版 (V2)</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">Google Apps Script 內部</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;"><code>google.script.run</code><br>(內建管道)</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #34d399; vertical-align: top;">1. 支援 HTML 獨立分頁，代碼排版清晰。<br>2. 完全免處理 CORS 跨網域與 Preflight 限制。</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #f87171; vertical-align: top;">1. 網頁加載受限於 Google iframe 安全沙盒，效能慢。<br>2. 無法使用 Git 進行流暢的版本控制。</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">試算表內建側邊欄 (Sidebar)、對話框擴充。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 0.5rem; font-weight: bold; color: #ffffff; vertical-align: top;">V3：前後端分離版 (V3)</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">外部伺服器<br>(地端/GitHub Pages)</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;"><code>fetch</code><br>(跨網域 JSON 通訊)</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #34d399; vertical-align: top;">1. 網頁加載極快，體驗流暢無 Google 沙盒卡頓。<br>2. 代碼支援完整的 Git 版控。<br>3. 敏感資訊與邏輯完全隱藏於後端，安全防護極高。</td>
+                                <td style="padding: 0.75rem 0.5rem; color: #f87171; vertical-align: top;">1. 需在外部託管網頁。<br>2. 必須嚴格處理跨網域 CORS 問題與簡單請求限制。</td>
+                                <td style="padding: 0.75rem 0.5rem; vertical-align: top;">正式生產環境項目、跨系統 ERP 資料對接、現代化 Web App。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- 6.1.1 系統架構設計 -->
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.1.1 雙表系統架構設計
+                </h3>
                 <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
-                    <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">⚙️ 雙表系統架構設計：</p>
+                    <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">⚙️ V2 雙表系統架構設計：</p>
                     <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; line-height: 1.5;">
                         <li><strong>資料庫（兩張工作表）</strong>：<code>Passwords</code>（帳密、角色、備註，預設 admin/admin123）與 <code>QA</code>（5組預設問題與答案）。</li>
                         <li><strong>資料初始化 (`setup.gs`)</strong>：一鍵執行，自動檢測並建立工作表，寫入正規化標頭與初始測試資料。</li>
