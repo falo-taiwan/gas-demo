@@ -61,6 +61,10 @@
 在多人協作或將工具部署給其他部門使用時，最常遇到的問題是：使用者複製了您的試算表，但忘記建立對應的 Sheet 分頁（例如 `Logs` 或 `Settings`），或是手動輸入的分頁名稱有空格、錯字，導致程式執行崩潰。
 
 * **解決方案**：在專案中新增一個 `setup.gs` 檔案，專門撰寫環境與資料正規化的初始化函數：
+
+<details>
+<summary>📝 setup.gs 程式碼範例</summary>
+
   ```javascript
   function setup() {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -83,7 +87,13 @@
     Logger.log("系統初始化與資料正規化設定完成！");
   }
   ```
+</details>
+
 * **好處**：同仁複製新試算表後，只需要手動執行一次 `setup` 函數，程式就會自動在背景將資料結構、格式與屬性全部建立妥當，達到「開箱即用」並防止人工操作失誤。
+
+**執行初始化腳本成功示意圖**（會自動在後台完成資料表的檢查與正規化建表）：
+
+![資料庫建表成功日誌記錄](./images/gas_v2_setup_run_success.png)
 
 ---
 
@@ -339,7 +349,9 @@ function setup() {
 
 不建立任何獨立 HTML 檔案，所有的網頁代碼都以「字串」形式寫在 `程式碼.gs` 中：
 
-#### 伺服器端：`程式碼.gs`
+<details>
+<summary>伺服器端：`程式碼.gs`</summary>
+
 ```javascript
 function doGet(e) {
   var action = e.parameter.action;
@@ -436,6 +448,7 @@ function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 ```
+</details>
 
 ### 6.3.1 做法 A 網頁應用程式部署步驟 (圖文引導)
 
@@ -472,7 +485,9 @@ function createJsonResponse(obj) {
 
 我們在 Apps Script 專案內建立兩個檔案，利用 Google 內建的非同步通訊管道 `google.script.run` 呼叫後端函數。此做法排版乾淨、支援完整網頁開發且**不需要處理跨網域 CORS 問題**。
 
-#### 伺服器端：`程式碼.gs`
+<details>
+<summary>伺服器端：`程式碼.gs`</summary>
+
 ```javascript
 function doGet() {
   return HtmlService.createHtmlOutputFromFile('index')
@@ -509,9 +524,13 @@ function getQAData() {
   return { success: true, data: qaList };
 }
 ```
+</details>
 
 #### 用戶端網頁：[NEW] `index.html`
 請在專案中新增一個名為 `index.html` 的 HTML 檔案，並貼入以下程式碼：
+<details>
+<summary>📝 用戶端網頁：index.html 程式碼</summary>
+
 ```html
 <!DOCTYPE html>
 <html>
@@ -807,6 +826,7 @@ function getQAData() {
 </body>
 </html>
 ```
+</details>
 
 ---
 
@@ -834,7 +854,9 @@ function getQAData() {
 
 我們在 Apps Script 中更新程式碼，以支援外部 `fetch` JSON 呼叫，並進行跨網域傳輸。
 
-#### 檔案一：`setup.gs` (移除明碼密碼)
+<details>
+<summary>檔案一：`setup.gs` (移除明碼密碼)</summary>
+
 ```javascript
 function setup() {
   var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -868,8 +890,11 @@ function setup() {
   Logger.log("V3 資料庫初始化完成！敏感帳密已從 Sheets 中抽離。");
 }
 ```
+</details>
 
-#### 檔案二：`程式碼.gs` (改為 API Proxy 路由並啟用安全讀取)
+<details>
+<summary>檔案二：`程式碼.gs` (改為 API Proxy 路由並啟用安全讀取)</summary>
+
 ```javascript
 function doGet(e) {
   var action = e.parameter.action;
@@ -998,6 +1023,7 @@ function addQAData(question, answer) {
   })).setMimeType(ContentService.MimeType.JSON);
 }
 ```
+</details>
 
 ### 7.2.1 伺服器端 V3 部署與執行步驟 (圖文引導)
 
@@ -1026,6 +1052,9 @@ function addQAData(question, answer) {
 ### 7.3 用戶端外部網頁程式碼 (`index.html`)
 
 請在您本地電腦上建立一個 `index.html` 檔案（例如放在桌面或發布於 GitHub Pages 專案目錄下），貼入以下程式碼。**並請記得將程式碼中的 `GAS_URL` 換成您 V3 重新部署後所產生的新網址：**
+
+<details>
+<summary>📝 用戶端外部網頁程式碼 (index.html)</summary>
 
 ```html
 <!DOCTYPE html>
@@ -1356,6 +1385,7 @@ function addQAData(question, answer) {
 </body>
 </html>
 ```
+</details>
 
 ---
 
