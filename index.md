@@ -971,7 +971,7 @@ function getQAData() {
 
   <script>
     // 這裡替換為您 V3 部署後生成的 Web App 網址
-    const GAS_URL = "https://script.google.com/macros/s/YOUR_V3_DEPLOYED_ID/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec";
 
     const loginPanel = document.getElementById("login-panel");
     const qaPanel = document.getElementById("qa-panel");
