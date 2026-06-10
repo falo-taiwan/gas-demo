@@ -240,6 +240,8 @@ function doGet() {
 
 在第一個實戰確認部署成功後，我們將進一步模擬真實的 ERP 前後端整合：建立一個具有**帳密登入控制**與**問答撈取**的 Web App 系統。
 
+> 🔗 **此案例線上正式 Demo 實例連結（紫色醒目框）**：[點擊前往測試](https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec)
+
 ### 6.1 系統架構設計
 
 本專案使用以下架構：
@@ -424,6 +426,35 @@ function createJsonResponse(obj) {
   return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
 }
 ```
+
+### 6.3.1 做法 A 網頁應用程式部署步驟 (圖文引導)
+
+貼上做法 A 的程式碼後，請依照以下步驟將其發布為網頁應用程式：
+
+#### 步驟 1：貼入程式碼並確實儲存
+將 `程式碼.gs` 原本的代碼清空，貼上做法 A 的完整程式碼，並按下 `Ctrl + S` 儲存。確保左側檔案名稱旁的橘色圓點消失。
+
+![貼入程式碼並存檔](./images/gas_v2_deploy_save_code.png)
+
+#### 步驟 2：點選「新增部署作業」
+在右上角點擊 **「部署」** 按鈕，並在下拉選單中選擇 **「新增部署作業」**。
+
+![點選新增部署作業](./images/gas_v2_deploy_click_new.png)
+
+#### 步驟 3：設定部署類型為「網頁應用程式」
+點選左上角「選取類型」旁的齒輪圖示，在選單中選取 **「網頁應用程式」**。
+
+![選取類型為網頁應用程式](./images/gas_v2_deploy_select_type.png)
+
+#### 步驟 4：將存取權限設定為「所有人」
+將「誰可以存取」修改為 **「所有人」**，以便外部帳戶與 API 請求能順利存取此應用程式，隨後點選下方的 **「部署」** 按鈕。
+
+![設定存取權限為所有人](./images/gas_v2_deploy_set_permission.png)
+
+#### 步驟 5：部署成功並取得網址
+系統完成部署後，會顯示「已成功更新部署作業」。請點選網址下方的 **「複製」** 按鈕取得網頁應用程式 URL。
+
+![取得網頁應用程式網址](./images/gas_v2_deploy_success.png)
 
 ---
 
