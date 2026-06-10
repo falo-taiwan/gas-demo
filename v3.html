@@ -1,0 +1,579 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V3 前後端分離 API 線上測試端 - 銀行軟體台西分公司</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #070d19;
+            --bg-darker: #040810;
+            --card-bg: rgba(15, 23, 42, 0.8);
+            --cyber-cyan: #06b6d4;
+            --cyber-cyan-glow: rgba(6, 182, 212, 0.4);
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --success: #10b981;
+            --error: #ef4444;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: 'Inter', 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: radial-gradient(circle at 50% 0%, #0c192e 0%, var(--bg-dark) 70%);
+            color: var(--text-main);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 1rem;
+            overflow-x: hidden;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 550px;
+            z-index: 10;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-family: 'Outfit', sans-serif;
+            font-size: 2.2rem;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            background: linear-gradient(135deg, #ffffff 40%, var(--cyber-cyan) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 0.5rem;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(6, 182, 212, 0.15);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(12px);
+            margin-bottom: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(6, 182, 212, 0.3);
+            box-shadow: 0 20px 45px rgba(6, 182, 212, 0.08);
+        }
+
+        h2 {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.75rem;
+        }
+
+        h2::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 18px;
+            background: var(--cyber-cyan);
+            border-radius: 3px;
+        }
+
+        .form-group {
+            margin-bottom: 1.25rem;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        input, select {
+            width: 100%;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            color: #ffffff;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--cyber-cyan);
+            box-shadow: 0 0 8px var(--cyber-cyan-glow);
+            background: rgba(15, 23, 42, 0.8);
+        }
+
+        input::placeholder {
+            color: rgba(255, 255, 255, 0.25);
+        }
+
+        small {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            margin-top: 0.25rem;
+            display: block;
+            line-height: 1.4;
+        }
+
+        button {
+            width: 100%;
+            background: linear-gradient(135deg, #0891b2 0%, #06b6d4 100%);
+            border: none;
+            border-radius: 8px;
+            color: #ffffff;
+            padding: 0.85rem;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-top: 0.75rem;
+            box-shadow: 0 4px 12px rgba(6, 182, 212, 0.2);
+        }
+
+        button:hover {
+            opacity: 0.95;
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(6, 182, 212, 0.35);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            background: #334155;
+            color: #64748b;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            color: var(--error);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .success-msg {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            color: var(--success);
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+            font-size: 0.85rem;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .answer-box {
+            background: rgba(16, 185, 129, 0.04);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            border-radius: 10px;
+            padding: 1rem;
+            margin-top: 1.25rem;
+            text-align: left;
+            border-left: 4px solid var(--success);
+        }
+
+        footer {
+            margin-top: 2rem;
+            text-align: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+
+        footer a {
+            color: var(--cyber-cyan);
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Flex row helper */
+        .flex-row {
+            display: flex;
+            gap: 0.75rem;
+            align-items: flex-end;
+        }
+
+        .flex-grow {
+            flex-grow: 1;
+        }
+
+        .btn-secondary {
+            background: #334155;
+            box-shadow: none;
+            width: auto;
+            margin-top: 0;
+            padding: 0.75rem 1rem;
+            flex-shrink: 0;
+        }
+
+        .btn-secondary:hover {
+            background: #475569;
+            box-shadow: none;
+        }
+
+        .badge {
+            background: rgba(6, 182, 212, 0.1);
+            border: 1px solid rgba(6, 182, 212, 0.2);
+            color: var(--cyber-cyan);
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <header>
+            <h1>V3 系統線上測試前端</h1>
+            <p>前後端分離與環境變數安全防護 (地端呼叫範例)</p>
+        </header>
+
+        <!-- 1. API 連線設定卡片 -->
+        <div class="card">
+            <h2>API 連線設定</h2>
+            <div class="form-group">
+                <label for="gas-url-input">GAS Web App API 網址</label>
+                <input type="text" id="gas-url-input" placeholder="貼上您的 GAS 部署網址">
+                <small>留空時，將自動使用預設系統 Demo 網址 (銀行軟體台西分公司服務)。</small>
+            </div>
+        </div>
+
+        <!-- 2. 登入卡片 -->
+        <div id="login-panel" class="card">
+            <h2>系統登入</h2>
+            <div class="form-group">
+                <label for="username">帳號 (Username)</label>
+                <input type="text" id="username" placeholder="請輸入帳號 (例如: admin 或 user)">
+            </div>
+            <div class="form-group">
+                <label for="password">密碼 (Password)</label>
+                <input type="password" id="password" placeholder="請輸入密碼">
+            </div>
+            <button id="login-btn">登入系統</button>
+            <div id="login-error" class="error-msg hidden"></div>
+        </div>
+
+        <!-- 3. QA 系統卡片 (登入後顯示) -->
+        <div id="qa-panel" class="card hidden">
+            <h2>問答查詢與寫入系統</h2>
+            
+            <!-- 登入資訊提示 -->
+            <div id="auth-info" style="font-size: 0.9rem; color: var(--cyber-cyan); margin-bottom: 1.5rem; font-weight: 600; text-align: center;"></div>
+
+            <!-- 問題選擇與整理 -->
+            <div class="form-group">
+                <label for="qa-select">選擇現有問題</label>
+                <div class="flex-row">
+                    <div class="flex-grow">
+                        <select id="qa-select">
+                            <option value="">-- 請選擇問題 --</option>
+                        </select>
+                    </div>
+                    <button id="refresh-btn" class="btn-secondary">🔄 整理</button>
+                </div>
+            </div>
+
+            <!-- 答案展示框 -->
+            <div id="answer-container" class="answer-box hidden">
+                <strong style="color: var(--success); font-size: 0.9rem; display: block; margin-bottom: 0.25rem;">📝 回覆答案：</strong>
+                <div id="answer-text" style="line-height: 1.5;"></div>
+            </div>
+
+            <!-- 新增問答 (回寫) -->
+            <div style="margin-top: 2rem; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1.5rem;">
+                <h3 style="font-size: 1.05rem; font-weight: 600; margin-bottom: 1.25rem; color: #ffffff; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📥</span> 新增問答資料 (雙向回寫)
+                </h3>
+                <div class="form-group">
+                    <label for="new-question">問題內容</label>
+                    <input type="text" id="new-question" placeholder="請輸入欲新增的問題">
+                </div>
+                <div class="form-group">
+                    <label for="new-answer">答案內容</label>
+                    <input type="text" id="new-answer" placeholder="請輸入欲新增的答案">
+                </div>
+                <button id="upload-btn" style="background: linear-gradient(135deg, #059669 0%, #10b981 100%); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.2);">上傳問答</button>
+                <div id="upload-message" class="hidden"></div>
+            </div>
+
+            <button id="logout-btn" class="btn-secondary" style="margin-top: 1.5rem; width: 100%;">登出系統</button>
+        </div>
+
+        <footer>
+            <p>© 2026 銀行軟體台西分公司. Powered by <a href="./" target="_blank">GAS 開發實戰手冊</a></p>
+        </footer>
+    </div>
+
+    <script>
+        // 預設 Demo Web App API 網址
+        const DEFAULT_GAS_URL = "https://script.google.com/macros/s/AKfycbziX48EPI9OcMsbtmFjeqEQGXaPkXxbchzgk5Tn3nu2l2fUvhlIPHXXKCshSR8xAi_gHA/exec";
+
+        // DOM 控制項
+        const gasUrlInput = document.getElementById("gas-url-input");
+        const loginPanel = document.getElementById("login-panel");
+        const qaPanel = document.getElementById("qa-panel");
+        const loginBtn = document.getElementById("login-btn");
+        const logoutBtn = document.getElementById("logout-btn");
+        const refreshBtn = document.getElementById("refresh-btn");
+        const uploadBtn = document.getElementById("upload-btn");
+        const usernameInput = document.getElementById("username");
+        const passwordInput = document.getElementById("password");
+        const loginError = document.getElementById("login-error");
+        const qaSelect = document.getElementById("qa-select");
+        const answerContainer = document.getElementById("answer-container");
+        const answerText = document.getElementById("answer-text");
+        const authInfo = document.getElementById("auth-info");
+        const newQuestion = document.getElementById("new-question");
+        const newAnswer = document.getElementById("new-answer");
+        const uploadMessage = document.getElementById("upload-message");
+
+        let qaData = [];
+
+        // 取得目前有效的連線網址
+        function getGasUrl() {
+            const input = gasUrlInput.value.trim();
+            return input || DEFAULT_GAS_URL;
+        }
+
+        // 登入事件處理
+        loginBtn.addEventListener("click", function() {
+            const user = usernameInput.value.trim();
+            const pass = passwordInput.value.trim();
+
+            if (!user || !pass) {
+                showLoginError("請輸入帳號與密碼！");
+                return;
+            }
+
+            loginBtn.disabled = true;
+            loginBtn.innerText = "驗證中...";
+            loginError.classList.add("hidden");
+
+            // 使用 POST 發送登入請求，以 text/plain 避免 Preflight (CORS) 限制
+            fetch(getGasUrl(), {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "login",
+                    username: user,
+                    password: pass
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.json();
+            })
+            .then(result => {
+                loginBtn.disabled = false;
+                loginBtn.innerText = "登入系統";
+
+                if (result.success) {
+                    // 登入成功，轉換面板
+                    loginPanel.classList.add("hidden");
+                    qaPanel.classList.remove("hidden");
+                    
+                    // 顯示驗證方式
+                    const authModeText = result.authType === "ScriptProperties" 
+                        ? "指令碼屬性驗證 (安全環境變數模式)" 
+                        : "工作表儲存格比對驗證 (明碼模式)";
+                    authInfo.innerHTML = `當前身份：<span class="badge">${result.role}</span><br><span style="font-size: 0.8rem; color: var(--text-muted); font-weight: normal; margin-top: 4px; display: inline-block;">驗證方式：${authModeText}</span>`;
+                    
+                    // 加載問答資料
+                    loadQA();
+                } else {
+                    showLoginError(result.message || "登入失敗，請檢查帳號密碼");
+                }
+            })
+            .catch(err => {
+                loginBtn.disabled = false;
+                loginBtn.innerText = "登入系統";
+                showLoginError("連線失敗：" + err.message + "\n請確認 API 網址是否正確，且已部署為「所有人」存取。");
+                console.error(err);
+            });
+        });
+
+        // 登出事件處理
+        logoutBtn.addEventListener("click", function() {
+            usernameInput.value = "";
+            passwordInput.value = "";
+            newQuestion.value = "";
+            newAnswer.value = "";
+            qaSelect.innerHTML = '<option value="">-- 請選擇問題 --</option>';
+            answerContainer.classList.add("hidden");
+            uploadMessage.classList.add("hidden");
+            qaPanel.classList.add("hidden");
+            loginPanel.classList.remove("hidden");
+        });
+
+        // 撈取 QA 資料
+        function loadQA() {
+            refreshBtn.disabled = true;
+            refreshBtn.innerText = "載入中...";
+            
+            fetch(getGasUrl() + "?action=getQA")
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.json();
+            })
+            .then(result => {
+                refreshBtn.disabled = false;
+                refreshBtn.innerText = "🔄 整理";
+                
+                if (result.success) {
+                    qaData = result.data;
+                    renderQASelect();
+                } else {
+                    alert("獲取 QA 資料失敗：" + result.message);
+                }
+            })
+            .catch(err => {
+                refreshBtn.disabled = false;
+                refreshBtn.innerText = "🔄 整理";
+                alert("獲取 QA 連線錯誤：" + err.message);
+                console.error(err);
+            });
+        }
+
+        // 重新整理按鈕事件
+        refreshBtn.addEventListener("click", loadQA);
+
+        // 渲染 QA 下拉選單
+        function renderQASelect() {
+            // 保留第一項
+            qaSelect.innerHTML = '<option value="">-- 請選擇問題 --</option>';
+            qaData.forEach(item => {
+                const opt = document.createElement("option");
+                opt.value = item.id;
+                opt.textContent = `Q${item.id}: ${item.question}`;
+                qaSelect.appendChild(opt);
+            });
+        }
+
+        // 選擇問題顯示答案
+        qaSelect.addEventListener("change", function() {
+            const val = qaSelect.value;
+            if (!val) {
+                answerContainer.classList.add("hidden");
+                return;
+            }
+            
+            const matched = qaData.find(item => String(item.id) === String(val));
+            if (matched) {
+                answerText.textContent = matched.answer;
+                answerContainer.classList.remove("hidden");
+            } else {
+                answerContainer.classList.add("hidden");
+            }
+        });
+
+        // 處理上傳問答
+        uploadBtn.addEventListener("click", function() {
+            const q = newQuestion.value.trim();
+            const a = newAnswer.value.trim();
+
+            if (!q || !a) {
+                showUploadMessage("請輸入完整的問題與答案！", "error");
+                return;
+            }
+
+            uploadBtn.disabled = true;
+            uploadBtn.innerText = "上傳中...";
+            uploadMessage.classList.add("hidden");
+
+            fetch(getGasUrl(), {
+                method: "POST",
+                body: JSON.stringify({
+                    action: "addQA",
+                    question: q,
+                    answer: a
+                })
+            })
+            .then(res => {
+                if (!res.ok) throw new Error("HTTP error " + res.status);
+                return res.json();
+            })
+            .then(result => {
+                uploadBtn.disabled = false;
+                uploadBtn.innerText = "上傳問答";
+
+                if (result.success) {
+                    showUploadMessage("上傳成功！", "success");
+                    newQuestion.value = "";
+                    newAnswer.value = "";
+                    loadQA(); // 重新整理問題選單
+                } else {
+                    showUploadMessage("上傳失敗：" + result.message, "error");
+                }
+            })
+            .catch(err => {
+                uploadBtn.disabled = false;
+                uploadBtn.innerText = "上傳問答";
+                showUploadMessage("連線錯誤：" + err.message, "error");
+                console.error(err);
+            });
+        });
+
+        // 輔助函式：顯示登入錯誤
+        function showLoginError(msg) {
+            loginError.textContent = msg;
+            loginError.classList.remove("hidden");
+        }
+
+        // 輔助函式：顯示上傳狀態訊息
+        function showUploadMessage(msg, type) {
+            uploadMessage.textContent = msg;
+            uploadMessage.className = type === "success" ? "success-msg" : "error-msg";
+            uploadMessage.classList.remove("hidden");
+        }
+    </script>
+</body>
+</html>
