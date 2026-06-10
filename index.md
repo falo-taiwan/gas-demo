@@ -254,9 +254,20 @@ function doGet() {
 
 ---
 
-### 6.2 雙表資料初始化腳本 (`setup.gs`)
+### 6.2 雙表資料初始化腳本 (`setup.gs`) 的建立與執行步驟
 
-不論採用做法 A 還是做法 B，都需要先建立資料表。請在 Apps Script 中新增一個 `setup.gs` 檔案，並貼入以下程式碼：
+不論採用做法 A 還是做法 B，我們都需要先建立並初始化 `Passwords` 與 `QA` 資料表。請遵循以下步驟：
+
+#### 步驟 1：建立 `setup.gs` 檔案
+1. 在 Apps Script 編輯器左側的「檔案」旁，點選 **「+」** 按鈕。
+2. 在下拉選單中選擇 **「指令碼」**：
+   ![點選新增指令碼](./images/gas_v2_setup_add_file.png)
+3. 將新建的檔案命名為 **`setup`** (系統會自動加上 `.gs` 副檔名)：
+   ![新建setup.gs檔案](./images/gas_v2_setup_name_file.png)
+
+#### 步驟 2：貼入初始化程式碼並儲存
+1. 清空 `setup.gs` 中的預設代碼，將以下程式碼完整複製並貼上。
+2. 點擊編輯器上方的 **「儲存 (磁碟圖示)」** 或使用 `Ctrl + S` 進行存檔：
 
 ```javascript
 function setup() {
@@ -290,6 +301,20 @@ function setup() {
   Logger.log("V2 資料庫初始化與資料正規化設定完成！");
 }
 ```
+
+   ![貼入程式碼並存檔](./images/gas_v2_setup_save_code.png)
+
+#### 步驟 3：執行 `setup` 函數進行授權與建表
+1. 確保上方的函數下拉選單中選定為 **`setup`**。
+2. 點擊選單列的 **「執行」** 按鈕。
+3. 由於本程式碼包含了對 Google 試算表 (SpreadsheetApp) 的存取與編輯，系統會跳出確認視窗，提示需要授權。請點擊 **「審查權限」** 進入授權程序：
+   ![點擊審查權限按鈕](./images/gas_v2_setup_auth_required.png)
+4. 選擇您的 Google 帳號，並在「這個應用程式未經 Google 驗證」警告畫面中，點開 **「進階」** 隱藏選項，並點選最下方的 **「前往『gas-study-v2』(不安全)」** 連結：
+   ![選取前往未命名專案不安全網址](./images/gas_v2_setup_auth_unsafe.png)
+5. 在最後的權限確認畫面中，確認允許此專案操作您的試算表，點擊右下角的 **「繼續 (Continue)」** 完成授權放行：
+   ![允許授權並點選繼續](./images/gas_v2_setup_auth_continue.png)
+6. 授權完畢後，編輯器下方執行記錄將顯示「V2 資料庫初始化與資料正規化設定完成！」及「執行完畢」，這代表您的 `Passwords` 與 `QA` 工作表已成功在雲端試算表中自動建立完成：
+   ![執行完畢且資料庫建立成功](./images/gas_v2_setup_run_success.png)
 
 ---
 
