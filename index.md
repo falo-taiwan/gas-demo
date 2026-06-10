@@ -859,6 +859,28 @@ function getQAData() {
 }
 ```
 
+### 7.2.1 伺服器端 V3 部署與執行步驟 (圖文引導)
+
+#### 步驟 1：建立並撰寫 `setup.gs` 程式碼
+在 Apps Script 專案中新增 `setup.gs` 指令碼檔案，並將上述的初始化程式碼貼入並儲存。
+
+![建立 setup.gs 程式碼](./images/gas_v3_setup_code.png)
+
+#### 步驟 2：執行 `setup` 初始化資料庫
+在上方工具列的函數選單中選定 `setup`，並點擊 **「執行」**。確保下方的執行記錄顯示「V3 資料庫初始化完成！」字樣，表示工作表已成功建立。
+
+![執行初始化腳本](./images/gas_v3_setup_run_success.png)
+
+#### 步驟 3：部署 API 網頁應用程式
+點選右上角的 **「部署」** > **「新增部署作業」**，選取類型為「網頁應用程式」，並將「誰可以存取」設定為「所有人」，最後點擊部署以取得 V3 Web App 的執行網址。
+
+![V3 點選新增部署作業](./images/gas_v3_deploy_click_new.png)
+
+#### 步驟 4：在地端網頁程式中配置 `GAS_URL`
+在您的本地電腦建立一個 `index.html` 檔案，並將剛才部署獲得的 V3 Web App 網址貼入至程式碼中的 `GAS_URL` 變數中，即可完成地端前後端分離的測試。
+
+![外部網頁配置 GAS_URL](./images/gas_v3_html_url_setting.png)
+
 ---
 
 ### 7.3 用戶端外部網頁程式碼 (`index.html`)
@@ -981,7 +1003,7 @@ function getQAData() {
 
   <script>
     // 這裡替換為您 V3 部署後生成的 Web App 網址
-    const GAS_URL = "https://script.google.com/macros/s/AKfycbzD2h2j9btVf_HLLD1l_luK6AqPvXCom-8VU1kns3rJ_iRlHniif4_ouK0Nj0A--QxS/exec";
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbziX48EPI9OcMsbtmFjeqEQGXaPkXxbchzgk5Tn3nu2l2fUvhlIPHXXKCshSR8xAi_gHA/exec";
 
     const loginPanel = document.getElementById("login-panel");
     const qaPanel = document.getElementById("qa-panel");
