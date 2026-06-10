@@ -1,0 +1,1736 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Apps Script (GAS) 開發架構與部署實戰手冊</title>
+    <meta name="description" content="專為天心同仁 (ERP 專業開發團隊) 設計的 GAS 開發架構觀念與極簡部署實戰圖文教學手冊。">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #0b0f19;
+            --card-bg: rgba(23, 28, 41, 0.75);
+            --card-border: rgba(255, 255, 255, 0.08);
+            --primary: #6366f1; /* Indigo */
+            --primary-glow: rgba(99, 102, 241, 0.15);
+            --accent: #10b981; /* Emerald */
+            --accent-glow: rgba(16, 185, 129, 0.15);
+            --cyber-cyan: #06b6d4; /* Cyber Cyan */
+            --cyan-glow: rgba(6, 182, 212, 0.15);
+            --text-main: #f3f4f6;
+            --text-muted: #9ca3af;
+            --font-outfit: 'Outfit', 'Noto Sans TC', sans-serif;
+            --font-sans: 'Noto Sans TC', sans-serif;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0b0f19;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--cyber-cyan);
+        }
+
+        body {
+            background-color: var(--bg-color);
+            background-image: 
+                radial-gradient(circle at 10% 10%, rgba(6, 182, 212, 0.08) 0%, transparent 45%),
+                radial-gradient(circle at 90% 90%, rgba(99, 102, 241, 0.06) 0%, transparent 45%);
+            color: var(--text-main);
+            font-family: var(--font-sans);
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 2rem 0;
+        }
+
+        /* Layout Structure */
+        .layout-wrapper {
+            display: flex;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 1.5rem;
+            gap: 2.5rem;
+        }
+
+        /* Sidebar Navigation */
+        aside {
+            width: 280px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 2rem;
+            height: fit-content;
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 20px;
+            padding: 1.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            animation: fadeInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Content Area */
+        main {
+            flex-grow: 1;
+            width: 0; /* Prevents overflow */
+            animation: fadeInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .aside-title {
+            font-family: var(--font-outfit);
+            font-size: 1.2rem;
+            font-weight: 700;
+            margin-bottom: 1.25rem;
+            background: linear-gradient(135deg, #ffffff 40%, #c7d2fe 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 0.75rem;
+        }
+
+        .nav-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .nav-item a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 0.95rem;
+            padding: 0.6rem 0.8rem;
+            border-radius: 8px;
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .nav-item a:hover {
+            color: #ffffff;
+            background: rgba(6, 182, 212, 0.1);
+            padding-left: 1.2rem;
+        }
+
+        .supplement-nav-item a {
+            color: #22d3ee !important; /* Cyber Cyan highlight */
+            font-weight: bold !important;
+            text-shadow: 0 0 8px rgba(34, 211, 238, 0.2);
+        }
+
+        .supplement-nav-item a:hover {
+            color: #67e8f9 !important;
+            background: rgba(6, 182, 212, 0.1) !important;
+        }
+
+        /* Main cards styling */
+        header {
+            margin-bottom: 2.5rem;
+            text-align: left;
+        }
+
+        h1 {
+            font-family: var(--font-outfit);
+            font-size: 2.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff 30%, #67e8f9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.5px;
+            margin-bottom: 0.5rem;
+            line-height: 1.3;
+        }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            font-weight: 300;
+        }
+
+        .section-card {
+            background: var(--card-bg);
+            border: 1px solid var(--card-border);
+            border-radius: 24px;
+            padding: 2.5rem;
+            backdrop-filter: blur(12px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+            margin-bottom: 2.5rem;
+            scroll-margin-top: 2rem; /* Smooth offset for anchors */
+        }
+
+        .supplement-card {
+            border: 1px solid rgba(6, 182, 212, 0.3) !important;
+            box-shadow: 0 0 25px rgba(6, 182, 212, 0.12) !important;
+            background: linear-gradient(135deg, rgba(8, 47, 73, 0.35), rgba(15, 23, 42, 0.75)) !important;
+        }
+
+        h2.section-header {
+            font-size: 1.45rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        h2.section-header::before {
+            content: '';
+            display: inline-block;
+            width: 6px;
+            height: 20px;
+            background: var(--cyber-cyan);
+            border-radius: 3px;
+            box-shadow: 0 0 10px var(--cyber-cyan);
+        }
+
+        .divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.08);
+            margin: 2rem 0;
+        }
+
+        /* Image styling */
+        .img-wrapper {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 8px;
+            overflow: hidden;
+            margin: 1.5rem 0 2rem 0;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
+            transition: border-color 0.3s ease;
+        }
+
+        .img-wrapper:hover {
+            border-color: rgba(6, 182, 212, 0.35);
+        }
+
+        .img-wrapper img {
+            width: 100%;
+            height: auto;
+            border-radius: 10px;
+            display: block;
+        }
+
+        /* Timeline style for Steps */
+        .timeline {
+            position: relative;
+            padding-left: 2rem;
+            border-left: 2px solid rgba(6, 182, 212, 0.15);
+            margin: 2rem 0;
+        }
+
+        .timeline-step {
+            position: relative;
+            margin-bottom: 3.5rem;
+        }
+
+        .timeline-step:last-child {
+            margin-bottom: 1rem;
+        }
+
+        .step-num {
+            position: absolute;
+            left: calc(-2rem - 17px);
+            top: 0;
+            background: #0b0f19;
+            border: 3px solid var(--cyber-cyan);
+            color: #ffffff;
+            font-family: var(--font-outfit);
+            font-size: 1rem;
+            font-weight: 700;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 0 10px var(--cyan-glow);
+            transition: all 0.3s ease;
+        }
+
+        .timeline-step:hover .step-num {
+            border-color: var(--accent);
+            transform: scale(1.1);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .step-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.75rem;
+        }
+
+        .step-title span {
+            color: var(--cyber-cyan);
+            font-family: var(--font-outfit);
+            font-weight: 700;
+            margin-right: 0.5rem;
+        }
+
+        .step-desc {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* Grid for Cards */
+        .intro-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+            margin-top: 1.5rem;
+        }
+
+        @media (min-width: 768px) {
+            .intro-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .intro-item {
+            background: rgba(255, 255, 255, 0.015);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            border-radius: 16px;
+            padding: 1.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .intro-item:hover {
+            background: rgba(255, 255, 255, 0.03);
+            border-color: rgba(6, 182, 212, 0.25);
+            transform: translateY(-2px);
+        }
+
+        .intro-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 1rem;
+        }
+
+        .intro-name::before {
+            content: "◆";
+            color: var(--cyber-cyan);
+            font-size: 0.8rem;
+        }
+
+        .intro-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .intro-desc ul {
+            list-style: none;
+            padding-left: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .intro-desc li {
+            position: relative;
+            padding-left: 1rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .intro-desc li::before {
+            content: "•";
+            position: absolute;
+            left: 0;
+            color: var(--cyber-cyan);
+        }
+
+        /* Copy Button & Prompt Box styling */
+        .prompt-box {
+            position: relative;
+            background: rgba(6, 182, 212, 0.03) !important;
+            border: 1px solid rgba(6, 182, 212, 0.2) !important;
+            border-radius: 8px;
+            padding: 1.25rem;
+            margin-bottom: 0.75rem;
+            transition: all 0.3s ease;
+        }
+        .prompt-header {
+            color: #ffffff;
+            font-weight: 500;
+            margin-bottom: 0.75rem;
+            font-size: 0.95rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-btn {
+            background: rgba(6, 182, 212, 0.15) !important;
+            border: 1px solid rgba(6, 182, 212, 0.3) !important;
+            color: #22d3ee !important;
+            padding: 0.3rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.2s ease;
+        }
+        .copy-btn:hover {
+            background: rgba(6, 182, 212, 0.4) !important;
+            box-shadow: 0 0 8px rgba(34, 211, 238, 0.4) !important;
+            color: #ffffff !important;
+        }
+
+        .highlight {
+            color: #22d3ee;
+            font-weight: bold;
+            background: rgba(6, 182, 212, 0.08);
+            padding: 0.1rem 0.3rem;
+            border-radius: 4px;
+        }
+
+        /* Animations */
+        @keyframes fadeInLeft {
+            from { opacity: 0; transform: translateX(-30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        @keyframes fadeInRight {
+            from { opacity: 0; transform: translateX(30px); }
+            to { opacity: 1; transform: translateX(0); }
+        }
+
+        /* Responsive Layout */
+        @media (max-width: 900px) {
+            .layout-wrapper { flex-direction: column; }
+            aside { width: 100%; position: static; margin-bottom: 1rem; }
+            main { width: 100%; }
+        }
+
+        .visual-watermark {
+            position: fixed;
+            bottom: 10px;
+            right: 10px;
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            opacity: 0.25;
+            pointer-events: none;
+            user-select: none;
+            z-index: 9999;
+            font-family: var(--font-outfit);
+        }
+    </style>
+</head>
+<body>
+    <div class="visual-watermark">
+        Falo x Force Cheng 2026/6/10 | Ver 1.00 | 教學用途，商業用途請聯繫作者
+    </div>
+
+    <div class="layout-wrapper">
+        <!-- Sidebar Navigation -->
+        <aside>
+            <div class="aside-title">GAS 課程目錄</div>
+            <ul class="nav-list">
+                <li class="nav-item"><a href="#gas-modes">1. 容器型 vs 獨立型</a></li>
+                <li class="nav-item"><a href="#gas-security">2. 安全密鑰管理實踐</a></li>
+                <li class="nav-item"><a href="#gas-setup-gs">3. setup.gs 正規化</a></li>
+                <li class="nav-item"><a href="#gas-proxy">4. 前後端分離 Proxy</a></li>
+                <li class="nav-item supplement-nav-item"><a href="#gas-deployment-practice">✦ 5. 實戰演練一：極簡部署</a></li>
+                <li class="nav-item supplement-nav-item"><a href="#gas-login-qa-practice">✦ 6. 實戰演練二：V2 雙表內建網頁</a></li>
+                <li class="nav-item supplement-nav-item"><a href="#gas-v3-security-practice">✦ 7. 實戰演練三：V3 外部網頁與安全</a></li>
+                <li class="nav-item"><a href="#gas-troubleshoot">8. 常見問題與排錯</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <main>
+            <header>
+                <h1>Google Apps Script (GAS) 開發架構與部署實戰手冊</h1>
+                <div class="subtitle">天心同仁 (ERP 專業開發團隊) 培訓專題</div>
+            </header>
+
+            <!-- Section 1: GAS Modes -->
+            <section id="gas-modes" class="section-card">
+                <h2 class="section-header">1. GAS 兩大執行模式：容器綁定型 vs 獨立型</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    同仁在進行 ERP 系統整合與資料存取時，必須先清楚 GAS 專案的兩種存在模式，這直接決定了程式碼開發入口與存取權限的控制：
+                </p>
+                <div style="overflow-x: auto;">
+                    <table style="width: 100%; border-collapse: collapse; margin-bottom: 1.5rem; font-size: 0.9rem; color: var(--text-muted);">
+                        <thead>
+                            <tr style="border-bottom: 2px solid rgba(255, 255, 255, 0.1); text-align: left; color: #ffffff;">
+                                <th style="padding: 0.75rem 1rem; width: 15%;">比較項目</th>
+                                <th style="padding: 0.75rem 1rem; width: 42.5%;">容器綁定型腳本 (Container-bound Scripts)</th>
+                                <th style="padding: 0.75rem 1rem; width: 42.5%;">獨立型腳本 (Standalone Scripts)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 1rem; font-weight: bold; color: #ffffff;">概念</td>
+                                <td style="padding: 0.75rem 1rem;">類似 <strong>Excel VBA</strong>。程式碼與特定的 Google 試算表、文件或簡報深度綁定。</td>
+                                <td style="padding: 0.75rem 1rem;">類似 <strong>獨立運行的後端 Server</strong>。它在雲端硬碟中是一個獨立的檔案。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 1rem; font-weight: bold; color: #ffffff;">開啟入口</td>
+                                <td style="padding: 0.75rem 1rem;">在 Google 試算表中，點擊頂部選單 <strong>「擴充功能」 > 「Apps Script」</strong>。</td>
+                                <td style="padding: 0.75rem 1rem;">直接在 Google 雲端硬碟中點選 <strong>「新增」 > 「更多」 > 「Google Apps Script」</strong>。</td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 1rem; font-weight: bold; color: #ffffff;">當前容器取得</td>
+                                <td style="padding: 0.75rem 1rem;">可直接呼叫 <code>SpreadsheetApp.getActiveSpreadsheet()</code> 取得當前綁定的試算表。</td>
+                                <td style="padding: 0.75rem 1rem;">必須透過特定的 ID 才能操作試算表：<br><code>SpreadsheetApp.openById("試算表_ID")</code></td>
+                            </tr>
+                            <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.05);">
+                                <td style="padding: 0.75rem 1rem; font-weight: bold; color: #ffffff;">檔案管理</td>
+                                <td style="padding: 0.75rem 1rem;">腳本不會單獨顯示在雲端硬碟中。當您複製、刪除該試算表時，腳本會隨之複製或刪除。</td>
+                                <td style="padding: 0.75rem 1rem;">檔案獨立存在，有獨立的版本管理與分享權限，可供多個不同的試算表共用。</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- Section 2: GAS Security -->
+            <section id="gas-security" class="section-card">
+                <h2 class="section-header">2. 安全密鑰管理：試算表 (易管理) vs 指令碼屬性 (安全)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    在 ERP 系統對接中，經常需要串接外部 API（例如 Line Bot API、ERP API 或資料庫金鑰）。我們在管理敏感密碼與參數時，應遵循以下安全原則：
+                </p>
+                <div class="intro-grid">
+                    <div class="intro-item">
+                        <div class="intro-name">非敏感參數 (一般對照表、常數設定)</div>
+                        <div class="intro-desc">
+                            <ul>
+                                <li><strong>做法</strong>：直接放在 Google Sheets 的某個 <code>Config</code> 分頁中.</li>
+                                <li><strong>優點</strong>：易於管理。即使是不懂技術的同仁，也能直接在試算表上調整設定值（如：警報通知人數、資料查詢起訖日），無需修改程式碼。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="intro-item">
+                        <div class="intro-name">敏感憑證 (API Key、金鑰、系統密碼)</div>
+                        <div class="intro-desc">
+                            <ul>
+                                <li><strong>做法</strong>：<strong>禁止</strong>寫在程式碼中，也<strong>不宜</strong>直接曝露在 Sheets 上。應放入 GAS 專案設定的 <strong>「指令碼屬性 (Script Properties)」</strong> 中。</li>
+                                <li><strong>設定方法</strong>：在 GAS 編輯器左側點擊 <strong>「專案設定 (齒輪圖標)」</strong> > 下拉至 <strong>「指令碼屬性」</strong> > 點擊 <strong>「新增指令碼屬性」</strong>，將金鑰以 Key-Value 方式儲存於 Google 雲端後台。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="prompt-box" style="margin-top: 1.5rem; padding: 1.25rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 程式碼讀取範例 (Script Properties)：</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: var(--accent); font-family: monospace; font-size: 0.9rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">// 在程式碼中動態讀取敏感金鑰，避免程式碼外洩時洩漏憑證
+var apiKey = PropertiesService.getScriptProperties().getProperty("ERP_API_KEY");</pre>
+                </div>
+            </section>
+
+            <!-- Section 3: setup.gs -->
+            <section id="gas-setup-gs" class="section-card">
+                <h2 class="section-header">3. 資料正規化初始化：使用 setup.gs</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    在多人協作或將工具部署給其他部門使用時，最常遇到的問題是：使用者複製了您的試算表，但忘記建立對應的 Sheet 分頁，或是手動輸入的分頁名稱有空格、錯字，導致程式執行崩潰。
+                    <br>
+                    <strong>解決方案</strong>：在專案中設計 <code>setup.gs</code> 檔案，撰寫環境與資料正規化的初始化函數，確保執行環境的正確：
+                </p>
+
+                <div class="prompt-box" style="padding: 1.25rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 setup.gs 程式碼範例：</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.2); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 1. 自動檢查並建立 Logs 分頁
+  var logSheet = ss.getSheetByName("Logs");
+  if (!logSheet) {
+    logSheet = ss.insertSheet("Logs");
+    // 自動寫入標準欄位標頭 (資料正規化)
+    logSheet.appendRow(["時間戳記", "操作人員", "執行動作", "狀態"]);
+    logSheet.getRange("A1:D1").setFontWeight("bold").setBackground("#d9ead3");
+  }
+  
+  // 2. 初始化指令碼屬性 (如果尚未設定)
+  var scriptProperties = PropertiesService.getScriptProperties();
+  if (!scriptProperties.getProperty("SYSTEM_VERSION")) {
+    scriptProperties.setProperty("SYSTEM_VERSION", "v1.0.0");
+  }
+  
+  Logger.log("系統初始化與資料正規化設定完成！");
+}</pre>
+                </div>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-top: 1rem;">
+                    <strong>好處</strong>：同仁複製新試算表後，只需要手動執行一次 <code>setup</code> 函數，程式就會自動在背景將資料結構、格式與屬性全部建立妥當，達到「開箱即用」並防止人工操作失誤。
+                </p>
+            </section>
+
+            <!-- Section 4: GAS Proxy -->
+            <section id="gas-proxy" class="section-card">
+                <h2 class="section-header">4. 前後端分離思維：GAS HTML vs GitHub HTML + GAS Proxy</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    GAS 允許我們在專案中建立 HTML 檔案來產出網頁介面，但在進行較具規模的 Web 專案時，架構選擇會直接影響效能與安全性：
+                </p>
+                <div class="intro-grid">
+                    <div class="intro-item">
+                        <div class="intro-name">1. GAS_html (內建渲染模式)</div>
+                        <div class="intro-desc">
+                            <ul>
+                                <li><strong>機制</strong>：在 GAS 內建編輯器中新增 <code>.html</code> 檔案，後端呼叫 <code>HtmlService.createHtmlOutputFromFile()</code> 來顯示網頁。</li>
+                                <li><strong>缺點</strong>：GAS 的 Web App 網頁會被包裹在 Google 的安全沙盒 (iframe) 中，導致載入速度慢、效能較差。此外，對外整合前端套件與 Git 版本控制很不便。</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="intro-item">
+                        <div class="intro-name">2. GitHub HTML + GAS Proxy (推薦架構)</div>
+                        <div class="intro-desc">
+                            <ul>
+                                <li><strong>機制</strong>：
+                                    <ul>
+                                        <li><strong>前端 (Client)</strong>：將精美的網頁發布至 <strong>GitHub Pages</strong>。</li>
+                                        <li><strong>後端 (Proxy)</strong>：GAS 部署成 Web App 作為 API Proxy。前端透過 <code>fetch()</code> 向 GAS 發送請求，GAS 處理試算表讀寫或寄信後再回傳。</li>
+                                    </ul>
+                                </li>
+                                <li><strong>優勢</strong>：網頁載入流暢快速，可使用現代前端開發；且後端 GAS 能隱藏敏感的資料處理邏輯與金鑰，安全性更高。</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 5: GAS Practice -->
+            <section id="gas-deployment-practice" class="section-card supplement-card">
+                <h2 class="section-header">✦ 5. 實戰演練一：極簡 Web App 部署步驟 (含圖文引導)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem;">
+                    現在，我們將實作第一支最簡單的 GAS Web App，目的在於<strong>「確認部署成功」</strong>並熟悉整個部署設定與 Google 的授權審核流程。
+                </p>
+
+                <div class="timeline">
+                    <!-- Step 1 -->
+                    <div class="timeline-step">
+                        <div class="step-num">1</div>
+                        <div class="step-title"><span>Step 01.</span> 建立 Google 試算表</div>
+                        <div class="step-desc">
+                            請進入您雲端硬碟的共用專案目錄（例如：<code>class3 > [study-gas]</code>），在空白區點按右鍵，選擇 <strong>「Google 試算表」</strong> 建立新檔案。
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step1_create_sheet.png" alt="建立 Google 試算表">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 2 -->
+                    <div class="timeline-step">
+                        <div class="step-num">2</div>
+                        <div class="step-title"><span>Step 02.</span> 處理共用資料夾建立提示</div>
+                        <div class="step-desc">
+                            因為該目錄為共用資料夾，系統會跳出確認警告視窗，提示本試算表將沿用共用權限。請點選 <strong>「建立並共用」</strong>。
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step2_share_dialog.png" alt="共用資料夾建立提示">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 3 -->
+                    <div class="timeline-step">
+                        <div class="step-num">3</div>
+                        <div class="step-title"><span>Step 03.</span> 進入 Apps Script 編輯器</div>
+                        <div class="step-desc">
+                            將新建好的試算表命名（例如：<code>gas-study-v1</code>），接著在頂部選單點選 <strong>「擴充功能」 > 「Apps Script」</strong>。
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step3_apps_script_menu.png" alt="點選 Apps Script">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 4 -->
+                    <div class="timeline-step">
+                        <div class="step-num">4</div>
+                        <div class="step-title"><span>Step 04.</span> 貼入極穩健之 Web App 程式碼</div>
+                        <div class="step-desc">
+                            Apps Script 編輯器開啟後，會顯示一個「未命名專案」並預設建立一個 <code>程式碼.gs</code>。
+                            <div class="img-wrapper" style="margin-bottom: 1.5rem;">
+                                <img src="./images/gas_step4_editor_init.png" alt="編輯器初始介面">
+                            </div>
+                            
+                            將預設的 <code>myFunction</code> 內容替換為以下 **「極穩健觸發授權版」** 示範程式碼：
+                            
+                            <div class="prompt-box" style="margin-top: 1rem; padding: 1rem;">
+                                <p class="prompt-header" style="margin-bottom: 0.5rem;">
+                                    <span>📝 doGet 程式碼：</span>
+                                    <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                                </p>
+                                <pre class="prompt-text" style="color: var(--accent); font-family: monospace; font-size: 0.95rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.5rem; border-radius: 6px; overflow-x: auto;">function doGet() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheetName = ss.getActiveSheet().getName();
+  
+  var html = "Deployment success. This is Bank Software Taixi Branch. Current sheet: " + sheetName;
+  return HtmlService.createHtmlOutput(html);
+}</pre>
+                            </div>
+
+                            貼上後的畫面如下，確保左側檔案名稱旁的橘色圓點亮起，表示代碼已編輯但尚未儲存，且無任何語法錯誤：
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step4_editor_init_success.png" alt="程式碼貼上成功無語法錯誤">
+                            </div>
+
+                            <div style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.25); border-radius: 8px; padding: 0.75rem; margin-top: 0.75rem;">
+                                <span style="color: #f59e0b; font-weight: bold; font-size: 0.85rem;">💡 教學重點提示：</span>
+                                <span style="color: var(--text-muted); font-size: 0.85rem; line-height: 1.4;">
+                                    本程式碼採取最穩健的設計：(1) **無任何 Emoji 等特殊符號**，避免編碼與語法解析的潛在問題；(2) **宣告變數 html**，將輸出字串儲存為變數，以縮短單行寬度，防止同仁在複製貼上時，因代碼寬度自動折行而產生 JavaScript 語法錯誤；(3) **保留 SpreadsheetApp 呼叫**，強制 Google 在部署時跳出安全授權視窗，以提供同仁完整的權限授權實作體驗。
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 5 -->
+                    <div class="timeline-step">
+                        <div class="step-num">5</div>
+                        <div class="step-title"><span>Step 05.</span> 點擊新增部署作業</div>
+                        <div class="step-desc">
+                            在 Apps Script 編輯器右上角的藍色選單中，點選 <strong>「部署」</strong> 按鈕，並在下拉選單中選擇 <strong>「新增部署作業」</strong>。
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step5_deploy_menu.png" alt="點擊新增部署作業">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 6 -->
+                    <div class="timeline-step">
+                        <div class="step-num">6</div>
+                        <div class="step-title"><span>Step 06.</span> 選取部署類型</div>
+                        <div class="step-desc">
+                            在彈出的視窗中，點擊左上角「選取類型」旁的 <strong>齒輪圖標</strong>，並在類型清單中選擇 <strong>「網頁應用程式」</strong>。
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step6_deploy_type.png" alt="選取網頁應用程式類型">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 7 -->
+                    <div class="timeline-step">
+                        <div class="step-num">7</div>
+                        <div class="step-title"><span>Step 07.</span> 配置部署參數與權限</div>
+                        <div class="step-desc">
+                            配置部署設定，預設的「誰可以存取」是「只有我自己」：
+                            <div class="img-wrapper" style="margin-bottom: 1.5rem;">
+                                <img src="./images/gas_step7_deploy_settings_private.png" alt="預設誰可以存取只有我自己">
+                            </div>
+                            為了讓外部對接口或同仁順利開啟，必須點開選單，將「誰可以存取」修改為 <strong>「所有人」</strong>，隨後點選右下角 <strong>「部署」</strong> 按鈕：
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step8_deploy_settings_anyone.png" alt="修改存取權限為所有人">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 8 -->
+                    <div class="timeline-step">
+                        <div class="step-num">8</div>
+                        <div class="step-title"><span>Step 08.</span> 安全授權流程 (首次部署必經)</div>
+                        <div class="step-desc">
+                            設定完成並點擊「部署」後，由於我們的程式碼包含了對 <code>SpreadsheetApp</code>（試算表）的存取，Google 就會偵測到敏感權限要求，並<strong>強制跳出安全授權視窗</strong>。請依序完成以下放行步驟：
+                            <ol style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 1rem; margin-top: 0.75rem;">
+                                <li>
+                                    點選 <strong>「授予存取權限 (Authorize Access)」</strong>：
+                                    <div class="img-wrapper" style="margin-top: 0.5rem; max-width: 500px;">
+                                        <img src="./images/gas_step8_auth_grant.png" alt="點選授予存取權限">
+                                    </div>
+                                </li>
+                                <li>選擇您的 <strong>Google 帳號</strong>。</li>
+                                <li>
+                                    畫面出現紅色警告「Google hasn't verified this app」。請點擊左下角的 <strong>「進階 (Advanced)」</strong>：
+                                    <div class="img-wrapper" style="margin-top: 0.5rem; max-width: 500px;">
+                                        <img src="./images/gas_step8_auth_unverified.png" alt="Google尚未驗證警告">
+                                    </div>
+                                </li>
+                                <li>
+                                    點選下方小字的 <strong>「前往『未命名專案』(Go to 未命名的專案 (unsafe))」</strong>：
+                                    <div class="img-wrapper" style="margin-top: 0.5rem; max-width: 500px;">
+                                        <img src="./images/gas_step8_auth_unsafe.png" alt="確認前往未命名專案">
+                                    </div>
+                                </li>
+                                <li>
+                                    在接下來的權限確認畫面中，確認權限範圍（查看、編輯、建立和刪除您在 Google 試算表中的所有試算表），點選右下角的 <strong>「Continue (繼續)」</strong> 完成授權放行：
+                                    <div class="img-wrapper" style="margin-top: 0.5rem; max-width: 500px; margin-bottom: 0.5rem;">
+                                        <img src="./images/gas_step8_auth_permissions_top.png" alt="Google Sheets權限要求">
+                                    </div>
+                                    <div class="img-wrapper" style="margin-top: 0.5rem; max-width: 500px;">
+                                        <img src="./images/gas_step8_auth_permissions_bottom.png" alt="允許授權確認">
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+
+                    <!-- Step 9 -->
+                    <div class="timeline-step">
+                        <div class="step-num">9</div>
+                        <div class="step-title"><span>Step 09.</span> 取得部署成功網址</div>
+                        <div class="step-desc">
+                            部署與授權放行作業完成後，系統會提示「已成功更新部署作業」，並生成專屬的 <strong>「網頁應用程式網址」</strong>。請點擊網址下方的 **「複製」**：
+                            <div class="img-wrapper">
+                                <img src="./images/gas_step9_deploy_success_v2.png" alt="部署成功複製網址">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Step 10 -->
+                    <div class="timeline-step">
+                        <div class="step-num">10</div>
+                        <div class="step-title"><span>Step 10.</span> 無痕測試驗證</div>
+                        <div class="step-desc">
+                            <ol style="padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; margin-top: 0.5rem;">
+                                <li>開啟瀏覽器的 <strong>「無痕視窗」</strong>。</li>
+                                <li>貼上剛才複製的網頁應用程式網址並按下 Enter。</li>
+                                <li>
+                                    若網頁成功顯示下列字樣，即代表您第一版的極簡部署作業完全成功：<br>
+                                    <strong style="color: #ffffff;">Deployment success. This is Bank Software Taixi Branch. Current sheet: 工作表1</strong><br>
+                                    <div class="img-wrapper" style="margin-top: 0.75rem;">
+                                        <img src="./images/gas_step10_verification_success.png" alt="無痕測試驗證成功">
+                                    </div>
+                                </li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Section 6: V2 Login and QA Practice -->
+            <section id="gas-login-qa-practice" class="section-card supplement-card">
+                <h2 class="section-header">✦ 6. 實戰演練二：雙表帳密登入與問答系統 (V2 - GAS 內建網頁版)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    在第一個實戰確認部署成功後，我們將進一步模擬真實的 ERP 前後端對接架構：建立一個具有<strong>帳密登入控制</strong>與<strong>下拉選單問答撈取</strong>的實用 Web App。
+                </p>
+
+                <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">⚙️ 雙表系統架構設計：</p>
+                    <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; line-height: 1.5;">
+                        <li><strong>資料庫（兩張工作表）</strong>：<code>Passwords</code>（帳密、角色、備註，預設 admin/admin123）與 <code>QA</code>（5組預設問題與答案）。</li>
+                        <li><strong>資料初始化 (`setup.gs`)</strong>：一鍵執行，自動檢測並建立工作表，寫入正規化標頭與初始測試資料。</li>
+                        <li><strong>內建呈現網頁的兩種做法</strong>：
+                            <ul>
+                                <li><strong>做法 A：行內字串版</strong>：直接將網頁 HTML 字串宣告在 <code>.gs</code> 程式碼中輸出。適合快速驗證。</li>
+                                <li><strong>做法 B：獨立網頁檔案版 (推薦)</strong>：在 GAS 專案內建立 <code>index.html</code> 檔案，透過 <code>google.script.run</code> 進行前後端非同步通訊，可避開所有跨網域限制。</li>
+                            </ul>
+                        </li>
+                    </ul>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.2 雙表資料初始化腳本 (setup.gs)
+                </h3>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 setup.gs (資料庫初始化與正規化)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 1. 初始化 Passwords 工作表
+  var passwordSheet = ss.getSheetByName("Passwords");
+  if (!passwordSheet) {
+    passwordSheet = ss.insertSheet("Passwords");
+    passwordSheet.appendRow(["Username", "Password", "Role", "Note"]);
+    passwordSheet.getRange("A1:D1").setFontWeight("bold").setBackground("#cfe2f3");
+    passwordSheet.appendRow(["admin", "admin123", "Admin", "Default Admin Account"]);
+    passwordSheet.appendRow(["user", "user123", "User", "Default User Account"]);
+  }
+  
+  // 2. 初始化 QA 工作表
+  var qaSheet = ss.getSheetByName("QA");
+  if (!qaSheet) {
+    qaSheet = ss.insertSheet("QA");
+    qaSheet.appendRow(["ID", "Question", "Answer"]);
+    qaSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#d9ead3");
+    
+    // 預設 5 組問答
+    qaSheet.appendRow(["1", "台西分公司營業時間？", "週一至週五 09:00 - 15:30。"]);
+    qaSheet.appendRow(["2", "如何聯絡台西分公司客服？", "請撥打分機 #888。"]);
+    qaSheet.appendRow(["3", "銀行軟體系統每日結帳時間？", "每日下午 17:00 進行批次結帳。"]);
+    qaSheet.appendRow(["4", "如何申請測試帳號？", "請填寫 ERP 權限申請單送交系統管理員。"]);
+    qaSheet.appendRow(["5", "系統發生連線逾時如何處理？", "請確認網路 VPN 狀態，並清除瀏覽器快取。"]);
+  }
+  
+  Logger.log("V2 資料庫初始化與資料正規化設定完成！");
+}</pre>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.3 做法 A：極簡單檔行內字串版
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    不建立任何獨立 HTML 檔案，所有的網頁代碼都以「字串」形式寫在 <code>程式碼.gs</code> 中輸出：
+                </p>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 程式碼.gs (行內字串版)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: var(--accent); font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function doGet(e) {
+  var action = e.parameter.action;
+  
+  // 處理 QA 撈取
+  if (action === "getQA") {
+    return getQAData();
+  }
+  
+  // 處理登入驗證
+  if (action === "login") {
+    return handleLogin(e.parameter.username, e.parameter.password);
+  }
+  
+  // 預設輸出網頁 (行內字串版)
+  var htmlString = '&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset="UTF-8"&gt;&lt;title&gt;Taixi Branch QA&lt;/title&gt;' +
+    '&lt;style&gt;body{font-family:Arial;background:#0b0f19;color:#fff;display:flex;justify-content:center;align-items:center;min-height:100vh;margin:0;}' +
+    '.card{background:#171c29;border:1px solid #06b6d4;border-radius:12px;padding:30px;width:300px;}' +
+    'input,select,button{width:100%;padding:10px;margin-top:10px;background:#1f2937;color:#fff;border:1px solid #374151;border-radius:6px;box-sizing:border-box;}' +
+    'button{background:#06b6d4;font-weight:bold;cursor:pointer;}' +
+    '.hidden{display:none;}.error{color:#ef4444;font-size:0.85rem;margin-top:5px; text-align:center;}' +
+    '&lt;/style&gt;&lt;/head&gt;&lt;body&gt;' +
+    '&lt;div id="login" class="card"&gt;&lt;h2&gt;系統登入&lt;/h2&gt;&lt;input type="text" id="user" placeholder="帳號"&gt;&lt;input type="password" id="pass" placeholder="密碼"&gt;&lt;button onclick="login()"&gt;登入&lt;/button&gt;&lt;div id="err" class="error hidden"&gt;&lt;/div&gt;&lt;/div&gt;' +
+    '&lt;div id="qa" class="card hidden"&gt;&lt;h2&gt;問答查詢系統&lt;/h2&gt;&lt;select id="sel" onchange="showAns()"&gt;&lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;&lt;/select&gt;&lt;div id="ans" style="margin-top:15px;padding:10px;background:#1e293b;border-left:4px solid #10b981;display:none;"&gt;&lt;/div&gt;&lt;/div&gt;' +
+    '&lt;script&gt;' +
+    'var webUrl = ScriptApp.getService().getUrl();' +
+    'var qaList = [];' +
+    'function login() {' +
+    '  var u = document.getElementById("user").value.trim();' +
+    '  var p = document.getElementById("pass").value.trim();' +
+    '  if(!u||!p) { alert("請輸入完整帳密！"); return; }' +
+    '  fetch(webUrl + "?action=login&username=" + encodeURIComponent(u) + "&password=" + encodeURIComponent(p))' +
+    '    .then(r =&gt; r.json()).then(res =&gt; {' +
+    '      if(res.success){' +
+    '        document.getElementById("login").classList.add("hidden");' +
+    '        document.getElementById("qa").classList.remove("hidden");' +
+    '        loadQA();' +
+    '      } else { var e=document.getElementById("err"); e.innerText=res.message; e.classList.remove("hidden"); }' +
+    '    });' +
+    '}' +
+    'function loadQA() {' +
+    '  fetch(webUrl + "?action=getQA").then(r =&gt; r.json()).then(res =&gt; {' +
+    '    if(res.success){' +
+    '      qaList = res.data;' +
+    '      var sel = document.getElementById("sel");' +
+    '      qaList.forEach(item =&gt; {' +
+    '        var opt = document.createElement("option");' +
+    '        opt.value = item.id; opt.innerText = item.question;' +
+    '        sel.appendChild(opt);' +
+    '      });' +
+    '    }' +
+    '  });' +
+    '}' +
+    'function showAns() {' +
+    '  var val = document.getElementById("sel").value;' +
+    '  var box = document.getElementById("ans");' +
+    '  if(!val){ box.style.display="none"; return; }' +
+    '  var found = qaList.find(x =&gt; String(x.id) === String(val));' +
+    '  if(found){ box.innerText = "答案：" + found.answer; box.style.display="block"; }' +
+    '}' +
+    '&lt;/script&gt;&lt;/body&gt;&lt;/html&gt;';
+  
+  return HtmlService.createHtmlOutput(htmlString);
+}
+
+function handleLogin(username, password) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Passwords");
+  if (!sheet) return createJsonResponse({ success: false, message: "Passwords sheet not found" });
+  
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && String(data[i][1]) === String(password)) {
+      return createJsonResponse({ success: true, role: data[i][2] });
+    }
+  }
+  return createJsonResponse({ success: false, message: "帳號或密碼錯誤" });
+}
+
+function getQAData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("QA");
+  if (!sheet) return createJsonResponse({ success: false, message: "QA sheet not found" });
+  
+  var data = sheet.getDataRange().getValues();
+  var qaList = [];
+  for (var i = 1; i < data.length; i++) {
+    qaList.push({ id: data[i][0], question: data[i][1], answer: data[i][2] });
+  }
+  return createJsonResponse({ success: true, data: qaList });
+}
+
+function createJsonResponse(obj) {
+  return ContentService.createTextOutput(JSON.stringify(obj)).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.4 做法 B：標準獨立檔案與 google.script.run 非同步通訊版 (最推薦)
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    我們在 Apps Script 專案內建立兩個檔案，利用 Google 內建的非同步通訊管道 <code>google.script.run</code> 呼叫後端函數。此做法排版乾淨、支援完整網頁開發且<strong>不需要處理跨網域 CORS 問題</strong>。
+                </p>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 伺服器端：程式碼.gs (獨立檔案版)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: var(--accent); font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function doGet() {
+  return HtmlService.createHtmlOutputFromFile('index')
+      .setTitle('台西分公司問答系統')
+      .setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+// 供前端 google.script.run.handleLogin() 呼叫
+function handleLogin(username, password) {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("Passwords");
+  if (!sheet) return { success: false, message: "Passwords sheet not found" };
+  
+  var data = sheet.getDataRange().getValues();
+  for (var i = 1; i < data.length; i++) {
+    if (data[i][0] === username && String(data[i][1]) === String(password)) {
+      return { success: true, role: data[i][2] };
+    }
+  }
+  return { success: false, message: "帳號或密碼錯誤" };
+}
+
+// 供前端 google.script.run.getQAData() 呼叫
+function getQAData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("QA");
+  if (!sheet) return { success: false, message: "QA sheet not found" };
+  
+  var data = sheet.getDataRange().getValues();
+  var qaList = [];
+  for (var i = 1; i < data.length; i++) {
+    qaList.push({ id: data[i][0], question: data[i][1], answer: data[i][2] });
+  }
+  return { success: true, data: qaList };
+}</pre>
+                </div>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 用戶端網頁：index.html (獨立檔案版)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: #22d3ee; font-family: monospace; font-size: 0.8rem; line-height: 1.4; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">&lt;!DOCTYPE html&gt;
+&lt;html&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;title&gt;Bank Software Taixi Branch - QA System&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background-color: #171c29;
+      border: 1px solid #06b6d4;
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.2);
+    }
+    h2 {
+      margin-top: 0;
+      color: #06b6d4;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #374151;
+      background-color: #1f2937;
+      color: #ffffff;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #06b6d4;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0891b2;
+    }
+    .hidden {
+      display: none;
+    }
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+    .answer-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #1e293b;
+      border-left: 4px solid #10b981;
+      border-radius: 4px;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;!-- 1. 登入面板 --&gt;
+  &lt;div id="login-panel" class="card"&gt;
+    &lt;h2&gt;系統登入&lt;/h2&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="username"&gt;帳號&lt;/label&gt;
+      &lt;input type="text" id="username" placeholder="請輸入帳號"&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="password"&gt;密碼&lt;/label&gt;
+      &lt;input type="password" id="password" placeholder="請輸入密碼"&gt;
+    &lt;/div&gt;
+    &lt;button id="login-btn"&gt;登入&lt;/button&gt;
+    &lt;div id="login-error" class="error-msg hidden"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 2. QA 系統面板 --&gt;
+  &lt;div id="qa-panel" class="card hidden"&gt;
+    &lt;h2&gt;問答查詢系統&lt;/h2&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
+      &lt;select id="qa-select"&gt;
+        &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div id="answer-container" class="answer-box hidden"&gt;
+      &lt;strong style="color: #10b981;"&gt;答案：&lt;/strong&gt;
+      &lt;div id="answer-text" style="margin-top: 5px;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button id="logout-btn" style="background-color: #4b5563;"&gt;登出&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    const loginPanel = document.getElementById("login-panel");
+    const qaPanel = document.getElementById("qa-panel");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const loginError = document.getElementById("login-error");
+    const qaSelect = document.getElementById("qa-select");
+    const answerContainer = document.getElementById("answer-container");
+    const answerText = document.getElementById("answer-text");
+
+    let qaData = [];
+
+    // 處理登入
+    loginBtn.addEventListener("click", function() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      
+      if (!user || !pass) {
+        showError("請輸入完整帳密！");
+        return;
+      }
+
+      loginError.classList.add("hidden");
+      loginBtn.disabled = true;
+      loginBtn.innerText = "驗證中...";
+
+      // 呼叫 GAS 後端 handleLogin 函數
+      google.script.run
+        .withSuccessHandler(function(result) {
+          loginBtn.disabled = false;
+          loginBtn.innerText = "登入";
+          
+          if (result.success) {
+            loginPanel.classList.add("hidden");
+            qaPanel.classList.remove("hidden");
+            loadQA();
+          } else {
+            showError(result.message);
+          }
+        })
+        .handleLogin(user, pass);
+    });
+
+    // 撈取 QA 資料
+    function loadQA() {
+      google.script.run
+        .withSuccessHandler(function(result) {
+          if (result.success) {
+            qaData = result.data;
+            qaSelect.innerHTML = '&lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;';
+            qaData.forEach(item =&gt; {
+              const opt = document.createElement("option");
+              opt.value = item.id;
+              opt.innerText = item.question;
+              qaSelect.appendChild(opt);
+            });
+          } else {
+            alert("撈取 QA 失敗：" + result.message);
+          }
+        })
+        .getQAData();
+    }
+
+    // 選取問題後顯示答案
+    qaSelect.addEventListener("change", function() {
+      const selectedId = qaSelect.value;
+      if (!selectedId) {
+        answerContainer.classList.add("hidden");
+        return;
+      }
+      
+      const found = qaData.find(item =&gt; String(item.id) === String(selectedId));
+      if (found) {
+        answerText.innerText = found.answer;
+        answerContainer.classList.remove("hidden");
+      }
+    });
+
+    // 登出
+    logoutBtn.addEventListener("click", function() {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      qaPanel.classList.add("hidden");
+      loginPanel.classList.remove("hidden");
+      answerContainer.classList.add("hidden");
+    });
+
+    function showError(msg) {
+      loginError.innerText = msg;
+      loginError.classList.remove("hidden");
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 6.5 前後端分離整合關鍵：避開 OPTIONS 預檢 (Preflight) 限制
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    在進行跨網域對接時，最常見的問題是瀏覽器報出 <strong>CORS 錯誤</strong>。
+                    <br><br>
+                    1. <strong>什麼是 OPTIONS 預檢？</strong>：當瀏覽器偵測到您向跨網域（Cross-Origin）發送非簡單請求（例如自訂了 Header，或是將 Content-Type 設為 <code>application/json</code>）時，會先自動發送一個 <code>OPTIONS</code> 方法的請求確認伺服器權限。
+                    <br>
+                    2. <strong>GAS 的限制</strong>：Google Apps Script 的 Web App <strong>不支援</strong> CORS 預檢（OPTIONS 請求），會直接回報失敗。
+                    <br>
+                    3. <strong>避開限制的做法</strong>：
+                    在前端發送 <code>fetch</code> 時，**不設定特殊的 Headers**。此時瀏覽器會採用 **「簡單請求 (Simple Request)」** 格式（即預設 <code>text/plain</code> 傳送字串），進而**完全避開** OPTIONS 預檢限制。伺服器端的 GAS 使用 <code>JSON.parse(e.postData.contents)</code> 來解析字串，即可完美實現跨網域資料交換！
+                </p>
+            </section>
+
+            <!-- Section 7: V3 Frontend-Backend Separation and Security Hardening -->
+            <section id="gas-v3-security-practice" class="section-card supplement-card">
+                <h2 class="section-header">✦ 7. 實戰演練三：前後端分離與環境變數安全防護 (V3 - 地端/GitHub HTML + GAS Proxy API)</h2>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.6;">
+                    在掌握了 GAS 內建渲染的 V2 版本後，接下來我們將系統升級為 <strong>前後端分離架構</strong>。前端網頁不再託管於 Google Apps Script 內部，而是放在<strong>同仁的本地端電腦或發布於 GitHub Pages</strong>，僅透過 API 形式呼叫後端 GAS（作為資料 Proxy 代理）。
+                    <br><br>
+                    此外，我們將導入 <strong>環境變數 (Script Properties)</strong> 的安全防護觀念，將敏感帳密從代碼與工作表中抽離。
+                </p>
+
+                <div style="background: rgba(6, 182, 212, 0.05); border: 1px solid rgba(6, 182, 212, 0.2); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                    <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.75rem; font-size: 1rem;">🛡️ V3 安全防護設計：使用指令碼屬性 (Script Properties)</p>
+                    <ul style="color: var(--text-muted); font-size: 0.9rem; padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.5rem; line-height: 1.5;">
+                        <li><strong>環境變數後台設定</strong>：在 Apps Script 編輯器左側點選 ⚙️ <strong>「專案設定」</strong> &gt; 下拉至「指令碼屬性」 &gt; 點選「新增指令碼屬性」，建立 <code>ADMIN_USERNAME</code> (值為 <code>admin</code>) 與 <code>ADMIN_PASSWORD</code> (值為 <code>admin123</code>)。</li>
+                        <li><strong>代碼安全讀取</strong>：使用 <code>PropertiesService.getScriptProperties().getProperty("ADMIN_PASSWORD")</code> 動態比對，帳密不再外露於試算表或代碼。</li>
+                    </ul>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 7.2 伺服器端 GAS 程式碼
+                </h3>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 1.5rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 setup.gs (敏感帳密抽離)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: #6366f1; font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function setup() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // 1. 初始化 Passwords 工作表 (不再直接寫入明碼帳密，工作表僅儲存一般使用者備份)
+  var passwordSheet = ss.getSheetByName("Passwords");
+  if (!passwordSheet) {
+    passwordSheet = ss.insertSheet("Passwords");
+    passwordSheet.appendRow(["Username", "Role", "Note"]); // 欄位中移除了 Password
+    passwordSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#cfe2f3");
+    passwordSheet.appendRow(["admin", "Admin", "Admin account set in Script Properties"]);
+  }
+  
+  // 2. 初始化 QA 工作表
+  var qaSheet = ss.getSheetByName("QA");
+  if (!qaSheet) {
+    qaSheet = ss.insertSheet("QA");
+    qaSheet.appendRow(["ID", "Question", "Answer"]);
+    qaSheet.getRange("A1:C1").setFontWeight("bold").setBackground("#d9ead3");
+    
+    // 預設 5 組問答
+    qaSheet.appendRow(["1", "台西分公司營業時間？", "週一至週五 09:00 - 15:30。"]);
+    qaSheet.appendRow(["2", "如何聯絡台西分公司客服？", "請撥打分機 #888。"]);
+    qaSheet.appendRow(["3", "銀行軟體系統每日結帳時間？", "每日下午 17:00 進行批次結帳。"]);
+    qaSheet.appendRow(["4", "如何申請測試帳號？", "請填寫 ERP 權限申請單送交系統管理員。"]);
+    qaSheet.appendRow(["5", "系統發生連線逾時如何處理？", "請確認網路 VPN 狀態，並清除瀏覽器快取。"]);
+  }
+  Logger.log("V3 資料庫初始化完成！敏感帳密已從 Sheets 中抽離。");
+}</pre>
+                </div>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 2rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 程式碼.gs (環境變數安全路由)</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: var(--accent); font-family: monospace; font-size: 0.85rem; line-height: 1.5; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">function doGet(e) {
+  var action = e.parameter.action;
+  
+  if (action === "getQA") {
+    return getQAData();
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    status: "success",
+    message: "Bank Software Taixi Branch V3 Server is running."
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function doPost(e) {
+  var postData;
+  try {
+    postData = JSON.parse(e.postData.contents);
+  } catch (err) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: "Invalid JSON format"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var action = postData.action;
+  
+  if (action === "login") {
+    return handleLogin(postData.username, postData.password);
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    success: false,
+    message: "Unknown action"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function handleLogin(username, password) {
+  var scriptProperties = PropertiesService.getScriptProperties();
+  var sysAdminUser = scriptProperties.getProperty("ADMIN_USERNAME");
+  var sysAdminPass = scriptProperties.getProperty("ADMIN_PASSWORD");
+  
+  // 1. 優先比對「指令碼屬性」安全環境變數
+  if (username === sysAdminUser && password === sysAdminPass) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: true,
+      role: "Admin",
+      message: "Login successful (Admin)"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  // 2. 一般使用者驗證（亦可在此串接其他加密機制）
+  return ContentService.createTextOutput(JSON.stringify({
+    success: false,
+    message: "Invalid username or password"
+  })).setMimeType(ContentService.MimeType.JSON);
+}
+
+function getQAData() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName("QA");
+  if (!sheet) {
+    return ContentService.createTextOutput(JSON.stringify({
+      success: false,
+      message: "Database error: QA sheet not found"
+    })).setMimeType(ContentService.MimeType.JSON);
+  }
+  
+  var data = sheet.getDataRange().getValues();
+  var qaList = [];
+  for (var i = 1; i < data.length; i++) {
+    qaList.push({ id: data[i][0], question: data[i][1], answer: data[i][2] });
+  }
+  
+  return ContentService.createTextOutput(JSON.stringify({
+    success: true,
+    data: qaList
+  })).setMimeType(ContentService.MimeType.JSON);
+}</pre>
+                </div>
+
+                <div class="divider"></div>
+
+                <h3 style="font-size: 1.2rem; color: #ffffff; margin-top: 1.5rem; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span style="color: var(--cyber-cyan);">◆</span> 7.3 用戶端外部網頁程式碼 (index.html)
+                </h3>
+                <p style="color: var(--text-muted); font-size: 0.95rem; margin-bottom: 1.5rem; line-height: 1.5;">
+                    請在您的本地電腦建立一個 <code>index.html</code> 檔案，完整貼入以下程式碼。<strong>記得將 <code>GAS_URL</code> 替換為您 V3 部署後生成的新網址：</strong>
+                </p>
+
+                <div class="prompt-box" style="padding: 1.25rem; margin-bottom: 2rem;">
+                    <p class="prompt-header" style="margin-bottom: 0.75rem;">
+                        <span>📝 外部 index.html 代碼：</span>
+                        <button class="copy-btn" onclick="copyPrompt(this)">複製程式碼</button>
+                    </p>
+                    <pre class="prompt-text" style="color: #22d3ee; font-family: monospace; font-size: 0.8rem; line-height: 1.4; background: rgba(0,0,0,0.25); padding: 0.75rem; border-radius: 6px; overflow-x: auto;">&lt;!DOCTYPE html&gt;
+&lt;html lang="zh-TW"&gt;
+&lt;head&gt;
+  &lt;meta charset="UTF-8"&gt;
+  &lt;meta name="viewport" content="width=device-width, initial-scale=1.0"&gt;
+  &lt;title&gt;Bank Software Taixi Branch - V3 QA System&lt;/title&gt;
+  &lt;style&gt;
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #0b0f19;
+      color: #f3f4f6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+    }
+    .card {
+      background-color: #171c29;
+      border: 1px solid #06b6d4;
+      border-radius: 12px;
+      padding: 30px;
+      width: 100%;
+      max-width: 400px;
+      box-shadow: 0 4px 20px rgba(6, 182, 212, 0.2);
+    }
+    h2 {
+      margin-top: 0;
+      color: #06b6d4;
+      text-align: center;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-size: 0.9rem;
+    }
+    input, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #374151;
+      background-color: #1f2937;
+      color: #ffffff;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #06b6d4;
+      border: none;
+      color: white;
+      font-weight: bold;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+    button:hover {
+      background-color: #0891b2;
+    }
+    .hidden {
+      display: none;
+    }
+    .error-msg {
+      color: #ef4444;
+      font-size: 0.85rem;
+      margin-top: 5px;
+      text-align: center;
+    }
+    .answer-box {
+      margin-top: 20px;
+      padding: 15px;
+      background-color: #1e293b;
+      border-left: 4px solid #10b981;
+      border-radius: 4px;
+    }
+  &lt;/style&gt;
+&lt;/head&gt;
+&lt;body&gt;
+
+  &lt;!-- 1. 登入面板 --&gt;
+  &lt;div id="login-panel" class="card"&gt;
+    &lt;h2&gt;V3 系統登入&lt;/h2&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="username"&gt;帳號&lt;/label&gt;
+      &lt;input type="text" id="username" placeholder="請輸入帳號"&gt;
+    &lt;/div&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="password"&gt;密碼&lt;/label&gt;
+      &lt;input type="password" id="password" placeholder="請輸入密碼"&gt;
+    &lt;/div&gt;
+    &lt;button id="login-btn"&gt;登入&lt;/button&gt;
+    &lt;div id="login-error" class="error-msg hidden"&gt;&lt;/div&gt;
+  &lt;/div&gt;
+
+  &lt;!-- 2. QA 系統面板 --&gt;
+  &lt;div id="qa-panel" class="card hidden"&gt;
+    &lt;h2&gt;問答查詢系統&lt;/h2&gt;
+    &lt;div class="form-group"&gt;
+      &lt;label for="qa-select"&gt;請選擇問題&lt;/label&gt;
+      &lt;select id="qa-select"&gt;
+        &lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;
+      &lt;/select&gt;
+    &lt;/div&gt;
+    &lt;div id="answer-container" class="answer-box hidden"&gt;
+      &lt;strong style="color: #10b981;"&gt;答案：&lt;/strong&gt;
+      &lt;div id="answer-text" style="margin-top: 5px;"&gt;&lt;/div&gt;
+    &lt;/div&gt;
+    &lt;button id="logout-btn" style="background-color: #4b5563;"&gt;登出&lt;/button&gt;
+  &lt;/div&gt;
+
+  &lt;script&gt;
+    // 這裡替換為您 V3 部署後生成的 Web App 網址
+    const GAS_URL = "https://script.google.com/macros/s/YOUR_V3_DEPLOYED_ID/exec";
+
+    const loginPanel = document.getElementById("login-panel");
+    const qaPanel = document.getElementById("qa-panel");
+    const loginBtn = document.getElementById("login-btn");
+    const logoutBtn = document.getElementById("logout-btn");
+    const loginError = document.getElementById("login-error");
+    const qaSelect = document.getElementById("qa-select");
+    const answerContainer = document.getElementById("answer-container");
+    const answerText = document.getElementById("answer-text");
+
+    let qaData = [];
+
+    // 處理登入
+    loginBtn.addEventListener("click", function() {
+      const user = document.getElementById("username").value.trim();
+      const pass = document.getElementById("password").value.trim();
+      
+      if (!user || !pass) {
+        showError("請輸入完整帳密！");
+        return;
+      }
+
+      loginError.classList.add("hidden");
+      loginBtn.disabled = true;
+      loginBtn.innerText = "驗證中...";
+
+      // 使用簡單 POST 請求，避開 Preflight 限制
+      fetch(GAS_URL, {
+        method: "POST",
+        body: JSON.stringify({
+          action: "login",
+          username: user,
+          password: pass
+        })
+      })
+      .then(res =&gt; res.json())
+      .then(result =&gt; {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "登入";
+        
+        if (result.success) {
+          loginPanel.classList.add("hidden");
+          qaPanel.classList.remove("hidden");
+          loadQA();
+        } else {
+          showError(result.message || "登入失敗！");
+        }
+      })
+      .catch(err =&gt; {
+        loginBtn.disabled = false;
+        loginBtn.innerText = "登入";
+        showError("連線伺服器失敗，請確認 GAS URL 是否填寫正確！");
+        console.error(err);
+      });
+    });
+
+    // 撈取 QA 資料
+    function loadQA() {
+      fetch(GAS_URL + "?action=getQA")
+        .then(res =&gt; res.json())
+        .then(result =&gt; {
+          if (result.success) {
+            qaData = result.data;
+            qaSelect.innerHTML = '&lt;option value=""&gt;-- 請選擇 --&lt;/option&gt;';
+            qaData.forEach(item =&gt; {
+              const opt = document.createElement("option");
+              opt.value = item.id;
+              opt.innerText = item.question;
+              qaSelect.appendChild(opt);
+            });
+          } else {
+            alert("撈取 QA 失敗：" + result.message);
+          }
+        })
+        .catch(err =&gt; {
+          alert("撈取 QA 連線失敗！");
+          console.error(err);
+        });
+    }
+
+    // 選取問題後顯示答案
+    qaSelect.addEventListener("change", function() {
+      const selectedId = qaSelect.value;
+      if (!selectedId) {
+        answerContainer.classList.add("hidden");
+        return;
+      }
+      
+      const found = qaData.find(item =&gt; String(item.id) === String(selectedId));
+      if (found) {
+        answerText.innerText = found.answer;
+        answerContainer.classList.remove("hidden");
+      }
+    });
+
+    // 登出
+    logoutBtn.addEventListener("click", function() {
+      document.getElementById("username").value = "";
+      document.getElementById("password").value = "";
+      qaPanel.classList.add("hidden");
+      loginPanel.classList.remove("hidden");
+      answerContainer.classList.add("hidden");
+    });
+
+    function showError(msg) {
+      loginError.innerText = msg;
+      loginError.classList.remove("hidden");
+    }
+  &lt;/script&gt;
+&lt;/body&gt;
+&lt;/html&gt;</pre>
+                </div>
+            </section>
+
+            <!-- Section 8: GAS Troubleshoot -->
+            <section id="gas-troubleshoot" class="section-card">
+                <h2 class="section-header">8. 常見問題與 AI 互動排錯</h2>
+                <div style="display: flex; flex-direction: column; gap: 1rem;">
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 1.25rem;">
+                        <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.95rem;">🙋 情境 A：修改了程式碼，重新整理網頁卻沒有任何變化？</p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+                            <strong>原理解析</strong>：GAS 的正式部署網址是版本鎖定的，重新整理舊網址無法看到更新。
+                        </p>
+                        <p style="color: var(--cyber-cyan); font-size: 0.9rem; margin: 0; line-height: 1.5; font-weight: 500;">
+                            💬 <strong>對話指令</strong>：<code>「我改了 doGet 的 HTML 字串，但重新整理 Web App 網址卻沒有更新，要怎麼處理？」</code>
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.4;">
+                            <strong>AI 會指導您</strong>：(1) 開發時使用「測試部署 (Test deployments)」網址，可以即時預覽；(2) 正式發布時，至「管理部署」編輯並選擇「新增版本」進行部署。
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 1.25rem;">
+                        <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.95rem;">🙋 情境 B：其他同仁點開網址，畫面顯示「需要授權」或「無法存取」？</p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+                            <strong>原理解析</strong>：部署時的「誰有權限存取 (Who has access)」設定有誤，未開放給外部或他人。
+                        </p>
+                        <p style="color: var(--cyber-cyan); font-size: 0.9rem; margin: 0; line-height: 1.5; font-weight: 500;">
+                            💬 <strong>對話指令</strong>：<code>「我部署的 GAS Web App 網址給同仁點開，提示需要登入或無法存取，請問要在哪裡修改部署參數？」</code>
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.4;">
+                            <strong>AI 會指導您</strong>：前往「管理部署」編輯該部署，將 Who has access 修改為 <strong>「所有人」</strong>（在英文介面是 Anyone）並重新部署。
+                        </p>
+                    </div>
+
+                    <div style="background: rgba(0, 0, 0, 0.2); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 8px; padding: 1.25rem;">
+                        <p style="color: #ffffff; font-weight: bold; margin-bottom: 0.5rem; font-size: 0.95rem;">🙋 情境 C：貼上代碼儲存時提示 <code>語法錯誤：SyntaxError: Invalid or unexpected token</code></p>
+                        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 0.5rem; line-height: 1.5;">
+                            <strong>原理解析</strong>：在 JavaScript 中，若使用普通雙引號 <code>"</code> 定義字串，該字串<strong>不可</strong>在編輯器中直接換行（斷行），否則會導致編譯錯誤。
+                        </p>
+                        <p style="color: var(--cyber-cyan); font-size: 0.9rem; margin: 0; line-height: 1.5; font-weight: 500;">
+                            💬 <strong>對話指令</strong>：<code>「我貼上 doGet 代碼時提示 SyntaxError: Invalid or unexpected token，要怎麼修復？」</code>
+                        </p>
+                        <p style="color: var(--text-muted); font-size: 0.85rem; margin-top: 0.5rem; line-height: 1.4;">
+                            <strong>AI 會指導您</strong>：確保雙引號內的字串完全維持在同一行閉合，或改用反引號 <code>`</code>（Template Literals，支援直接折行）。
+                        </p>
+                    </div>
+                </div>
+            </section>
+            
+            <footer style="text-align: center; color: var(--text-muted); font-size: 0.85rem; margin-top: 3rem;">
+                <p>© 2026 Falo x Force Cheng. All rights reserved. | <strong>Ver 1.00</strong></p>
+                <p style="margin-top: 0.5rem; font-size: 0.8rem; opacity: 0.8;">
+                    ⚠️ 本網頁內容僅供教學用途。如有商業用途，請聯繫作者 (Falo x Force Cheng)。
+                </p>
+            </footer>
+        </main>
+    </div>
+
+    <script>
+        function copyPrompt(btn) {
+            var container = btn.closest('.prompt-box');
+            var text = container.querySelector('.prompt-text').innerText;
+            // Strip displaying quotes 「 and 」
+            var cleanText = text.replace(/^「/, '').replace(/」$/, '');
+            
+            navigator.clipboard.writeText(cleanText).then(function() {
+                var originalText = btn.innerText;
+                btn.innerText = '已複製！';
+                btn.style.background = 'rgba(16, 185, 129, 0.3)';
+                btn.style.borderColor = '#10b981';
+                btn.style.color = '#10b981';
+                setTimeout(function() {
+                    btn.innerText = originalText;
+                    btn.style.background = '';
+                    btn.style.borderColor = '';
+                    btn.style.color = '';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Copy failed:', err);
+                alert('複製失敗，請手動複製！');
+            });
+        }
+    </script>
+</body>
+</html>
